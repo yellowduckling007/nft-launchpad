@@ -4,7 +4,8 @@ function CollectionForm({collection, handlechange, handleSubmit, nftType}) {
         <form onSubmit={handleSubmit} className="glass-form">
         <div className="form-layout">
         <label>Collection Name:</label> 
-        <input type="text" 
+        <input className="input"
+        type="text" 
         value={collection.name} 
         name="name"
         onChange={handlechange} 
@@ -13,7 +14,8 @@ function CollectionForm({collection, handlechange, handleSubmit, nftType}) {
         <br />
 
         <label>Symbol:</label>
-        <input type="text"
+        <input className="input"
+        type="text"
         value={collection.symbol}
         name="symbol"
         onChange={handlechange}
@@ -22,7 +24,8 @@ function CollectionForm({collection, handlechange, handleSubmit, nftType}) {
         <br />
 
         <label>Max Supply:</label>
-        <input type="number"
+        <input className="input"
+        type="number"
         value={collection.maxSupply}
         name="maxSupply"
         onChange={handlechange}
@@ -33,7 +36,7 @@ function CollectionForm({collection, handlechange, handleSubmit, nftType}) {
         {nftType === "ART" && (
         <>
         <label>Royalty (%):</label>
-        <input
+        <input className="input"
         type="number"
           value={collection.royalty}
         name="royalty"

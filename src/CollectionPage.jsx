@@ -1,16 +1,17 @@
-import { useParams , useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { PinataSDK } from "pinata-web3";
 import { getSigner } from "./utils/wallet";
+import { connectWallet } from './utils/wallet';
 
-function CollectionPage() {
+function CollectionPage({ walletAddress, setWalletAddress }) {
     const { address } = useParams();
-    
+
     const [searchParams] = useSearchParams();
-    
+
 
     const [contractOwner, setContractOwner] = useState("");
     const [contractMintMode, setContractMintMode] = useState("");
@@ -25,7 +26,7 @@ function CollectionPage() {
     const [collectionName, setCollectionName] = useState("");
     const [metadataURI, setMetadataURI] = useState("");
     const [isMintingCreator, setIsMintingCreator] = useState(false);
-    
+
 
     useEffect(() => {
         const fetchContractDetails = async () => {
@@ -63,15 +64,22 @@ function CollectionPage() {
         fetchContractDetails();
 
         const uri = searchParams.get("uri");
-    if (uri) {
-        setMetadataURI(uri);
-    }
-    }, [address], [searchParams]);
+        if (uri) {
+            setMetadataURI(uri);
+        }
+    }, [address, searchParams]);
 
 
     const handleMultipleUpload = (e) => {
         const files = Array.from(e.target.files);
         setImages(files);
+    };
+
+    const handleConnectWallet = async () => {
+        const address = await connectWallet();
+        if (address) {
+            setWalletAddress(address);
+        }
     };
 
     const prepareCollection = async () => {
@@ -182,13 +190,23 @@ function CollectionPage() {
     return (
         <div className="main-content">
 
+            <div className="top-bar">
+                <div className="brand-mark">✦ MintNFT</div>
+                <div></div>
+                <button className="wallet-pill" onClick={handleConnectWallet}>
+                    {walletAddress
+                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                        : "Connect Wallet"}
+                </button>
+            </div>
+
             <div className="page-header">
-                <h1 className="headline">Collection Manager</h1>
+                <h1 className="headline text-gold">Collection Manager</h1>
                 <p className="subline">Prepare and manage your NFT collection</p>
             </div>
             {/* Main Layout */}
             <div className="collection-layout">
-                <div className="collection-info">
+                <div className="card card-hover collection-info">
 
                     <h3>Collection Info</h3>
 
@@ -203,7 +221,7 @@ function CollectionPage() {
                 </div>
 
                 {contractMintMode === 1 && contractNftType === 0 && (
-                    <div className="collection-upload">
+                    <div className="card card-hover collection-upload">
                         <h3>Prepare Collection</h3>
                         <div className="form-group">
                             <label>Collection Description</label>
@@ -219,7 +237,7 @@ function CollectionPage() {
                         <div className="form-group">
                             <label>Upload Images</label>
 
-                            <input
+                            <input class="input"
                                 type="file"
                                 multiple
                                 accept="image/*"
@@ -234,38 +252,40 @@ function CollectionPage() {
                         </div>
 
                         <button
-                            className="btn-gold prepare-btn"
+                            className="btn-primary prepare-btn"
                             onClick={prepareCollection}
                             disabled={isPreparing}
                         >
                             {isPreparing ? "Preparing..." : "Prepare Collection"}
                         </button>
 
-                        <div className="collection-ready">
-                            <p>Collection prepared successfully</p>
+                        {baseCID && (
+                            <div className="collection-ready">
+                                <p>Collection prepared successfully</p>
 
-                            <a href={`/public/${address}`}>
-                                Open Public Mint Page →
-                            </a>
-                        </div>
+                                <a href={`/public/${address}`}>
+                                    Open Public Mint Page →
+                                </a>
+                            </div>
+                        )}
 
 
                     </div>
 
                 )}
 
-            </div>
+            
 
             {contractMintMode === 0 && contractNftType === 0 && (
 
-                <div className="creator-mint">
+                <div className="card card-hover creator-mint">
 
                     <h3>Creator Mint</h3>
 
                     <div className="form-group">
                         <label>Metadata URI</label>
 
-                        <input
+                        <input className="input"
                             type="text"
                             placeholder="Paste metadata URI"
                             value={metadataURI}
@@ -275,7 +295,7 @@ function CollectionPage() {
                     </div>
 
                     <button
-                        className="btn-gold"
+                        className="btn-gold btn-primary"
                         onClick={mintCreatorNFT}
                         disabled={isMintingCreator}
                     >
@@ -290,6 +310,7 @@ function CollectionPage() {
             {contractMintMode === 1 && contractNftType === 1 && (
                 <p>Public Utility Mode</p>
             )}
+        </div>
 
         </div>
     );

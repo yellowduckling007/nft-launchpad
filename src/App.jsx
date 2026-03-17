@@ -4,15 +4,27 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CreatePage from './CreatePage';
 import CollectionPage from './CollectionPage';
 import PublicMintPage from './PublicMintPage';
+import { useState } from 'react';
 
-function App(){
+function App() {
+  const [walletAddress, setWalletAddress] = useState("");
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/create" element={<CreatePage />} />
-        <Route path="/collection/:address" element={<CollectionPage />} />
-        <Route path="/public/:address" element={<PublicMintPage/>}/>
+        <Route path="/" element={<LandingPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+
+        <Route path="/create" element={<CreatePage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+
+        <Route path="/collection/:address" element={<CollectionPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+        <Route path="/public/:address" element={<PublicMintPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import { connectWallet } from "./utils/wallet";
 
-function LandingPage() {
+function LandingPage({ walletAddress, setWalletAddress }) {
     const navigate = useNavigate();
+
+    const handleConnectWallet = async () => {
+        const address = await connectWallet();
+        if (address) {
+            setWalletAddress(address);
+        }
+    };
 
     return (
         <div className="app-root">
@@ -9,7 +17,11 @@ function LandingPage() {
             <div className="top-bar">
                 <div className="brand-mark">✦ MintNFT</div>
                 <div></div>
-                <button className="wallet-pill">Connect Wallet</button>
+                <button className="wallet-pill" onClick={handleConnectWallet}>
+                    {walletAddress
+                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                        : "Connect Wallet"}
+                </button>
             </div>
 
             <main className="landing">
@@ -21,22 +33,22 @@ function LandingPage() {
                         Deploy powerful NFT smart contracts with custom mint rules,
                         royalties and supply control — in minutes.
                     </p>
-                    <button onClick={() => navigate("/create")}>
+                    <button className="btn-primary" onClick={() => navigate("/create")}>
                         Launch Collection →
                     </button>
                 </section>
 
                 {/* FEATURES */}
                 <section className="features">
-                    <div className="feature-card">
-                        <h3>No Coding <br/>Required</h3>
+                    <div className="card card-hover feature-card">
+                        <h3>No Coding <br />Required</h3>
                         <p>
                             Create your own NFT smart contract without writing a single line of code.
                             We handle the technical complexity for you.
                         </p>
                     </div>
 
-                    <div className="feature-card">
+                    <div className="card card-hover feature-card">
                         <h3>Your Rules, Your Collection</h3>
                         <p>
                             Decide how your NFTs are minted, priced, and distributed —
@@ -44,7 +56,7 @@ function LandingPage() {
                         </p>
                     </div>
 
-                    <div className="feature-card">
+                    <div className="card card-hover feature-card">
                         <h3>Launch With Confidence</h3>
                         <p>
                             Your contract is deployed directly from your wallet,

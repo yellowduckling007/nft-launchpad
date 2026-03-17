@@ -1,10 +1,10 @@
 function Mintmode({ mintMode, setMintMode, mintPrice, setMintPrice, transferable, setTransferable }) {
   return (
-    <div className="mint-card">
+    <div className="mint-card card">
       <h4>Minting</h4>
 
       <label className="mint-row">
-        <input
+        <input 
           type="radio"
           name="mintMode"
           checked={mintMode === "CREATOR_ONLY"}
@@ -33,9 +33,9 @@ function Mintmode({ mintMode, setMintMode, mintPrice, setMintPrice, transferable
       </label>
 
       {mintMode === "PUBLIC" && (
-        <div className="mint-price">
+        <div className="mint-price text-gold">
             <label className="mint-price-label">Mint Price (ETH)</label>
-        <input
+        <input class="input"
           type="number"
           placeholder="eg: 0.01"
           value={mintPrice}

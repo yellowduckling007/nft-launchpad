@@ -5,7 +5,7 @@ import ArtistNFT from "./abi/ArtistNFT.json";
 import { connectWallet } from './utils/wallet';
 import { getSigner } from "./utils/wallet";
 
-function PublicMintPage() {
+function PublicMintPage({ walletAddress, setWalletAddress }) {
 
     const { address } = useParams();
 
@@ -17,7 +17,6 @@ function PublicMintPage() {
     const [nfts, setNfts] = useState([]);
     const [collectionDescription, setCollectionDescription] = useState("");
     const [creatorAddress, setCreatorAddress] = useState("");
-    const [walletAddress, setWalletAddress] = useState("");
 
     const handleConnectWallet = async () => {
         const address = await connectWallet();
@@ -147,43 +146,43 @@ function PublicMintPage() {
 
             <main className="mint-page">
                 <div className="collection-header">
-                    <h1 className="collection-name">{collectionName}</h1>
+                    <h1 className="collection-name text-gold">{collectionName}</h1>
                     <p className="collection-desc">{collectionDescription}</p>
 
                     <div className="collection-meta">
                         <div className="meta-item">
-                            <span className="meta-label">Created by</span>
+                            <span className="meta-label text-gold">Created by</span>
                             <a
                                 href={`https://sepolia.etherscan.io/address/${creatorAddress}`}
                                 target="_blank"
                                 className="meta-value creator-link"
                             >
-                                {creatorAddress.slice(0, 6)}...{creatorAddress.slice(-4)}
+                                {creatorAddress.slice(0, 6)}...{creatorAddress.slice(-4)}↗
                             </a>
                         </div>
 
                         <div className="meta-item">
-                            <span className="meta-label">Contract</span>
+                            <span className="meta-label text-gold">Contract</span>
                             <a
                                 href={`https://sepolia.etherscan.io/address/${address}`}
                                 target="_blank"
-                                className="meta-value"
+                                className="meta-value creator-link"
                             >
                                 {address.slice(0, 6)}...{address.slice(-4)} ↗
                             </a>
                         </div>
-                        <div className="meta-item">
+                        <div className="meta-item text-gold ">
                             <span className="meta-label">Mint Price</span>
                             <span className="meta-value">{mintPrice} ETH</span>
                         </div>
-                        <div className="meta-item">
+                        <div className="meta-item text-gold">
                             <span className="meta-label">Minted</span>
                             <span className="meta-value">{totalMinted} / {maxSupply}</span>
                         </div>
                     </div>
 
                     <button
-                        className="btn-deploy"
+                        className="btn-primary btn-deploy"
                         onClick={handleMint}
                         disabled={isMinting}
                     >
@@ -196,7 +195,7 @@ function PublicMintPage() {
                     <h2 className="section-heading">Items</h2>
                     <div className="nft-grid">
                         {nfts.map((nft) => (
-                            <div key={nft.tokenId} className="nft-card">
+                            <div key={nft.tokenId} className="card card-hover nft-card">
                                 <img src={nft.image} alt={nft.name} />
                                 <p>{nft.name}</p>
                                 {nft.minted && <span className="minted-label">Minted</span>}

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { connectWallet } from './utils/wallet';
 
-function CreatePage() {
+function CreatePage({ walletAddress, setWalletAddress }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const metadataURI = searchParams.get("uri");
@@ -17,14 +17,12 @@ function CreatePage() {
     ART: 0,
     UTILITY: 1,
   };
-
   const MINT_MODE = {
     CREATOR_ONLY: 0,
     PUBLIC: 1,
   };
 
   const [collection, setCollection] = useState({ name: "", symbol: "", maxSupply: "", royalty: "" });
-  const [walletAddress, setWalletAddress] = useState("");
   const [contractAddress, setContractAddress] = useState("");
   const [deployStatus, setDeployStatus] = useState("idle"); // idle | deploying | success | error | cancelled
   const [errorMessage, setErrorMessage] = useState("");
@@ -157,7 +155,12 @@ function CreatePage() {
           </div>
         )}
 
-        <button className="wallet-pill" onClick={handleConnectWallet}>
+        <button
+          className="wallet-pill"
+          onClick={() => {
+            handleConnectWallet();
+          }}
+        >
           {walletAddress
             ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
             : "Connect Wallet"}
@@ -169,7 +172,7 @@ function CreatePage() {
         {deployStatus !== "success" ? (
           <>
             <div className="page-header">
-              <h1 className="headline">Create Collection</h1>
+              <h1 className="headline text-gold">Create Collection</h1>
               <p className="subline">Deploy your NFT contract in seconds</p>
             </div>
 
@@ -212,7 +215,7 @@ function CreatePage() {
 
             {nftType && isFormValid && (
               <button
-                className="btn-deploy"
+                className="btn-deploy btn-primary"
                 onClick={deployContract}
                 disabled={!canDeploy || deployStatus === "deploying"}
               >
@@ -227,9 +230,9 @@ function CreatePage() {
         ) : (
           /* Success State */
           <div className="success-wrapper">
-            <div className="success-card">
+            <div className="card success-card">
               <div className="success-icon">✦</div>
-              <h2 className="success-title">Collection Live</h2>
+              <h2 className="success-title text-gold">Collection Live</h2>
               <p className="success-subtitle">Your contract is deployed and ready to mint.</p>
 
               <div className="address-block">
@@ -238,7 +241,7 @@ function CreatePage() {
               </div>
 
               <div className="success-actions">
-                <button className="btn-gold" onClick={copyAddress}>
+                <button className="btn-gold btn-primary" onClick={copyAddress}>
                   {copied ? "✓ Copied" : "Copy Address"}
                 </button>
                 <a
@@ -251,7 +254,7 @@ function CreatePage() {
                 </a>
               </div>
 
-              <button className="btn-deploy" style={{ marginTop: "0.5rem" }}
+              <button className="btn-deploy btn-primary"
                 onClick={() => {
                   if (metadataURI) {
                     navigate(`/collection/${contractAddress}?uri=${metadataURI}`);
