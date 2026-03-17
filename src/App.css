@@ -1128,8 +1128,9 @@ html {
   .top-bar {
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
-    padding: 1rem;
+    padding: 0.7rem 1rem;
   }
 
   .glass-form {
@@ -1137,11 +1138,12 @@ html {
   }
 
   .wallet-pill {
-    width: 100%;
+    width: auto;
     max-width: 220px;
     justify-content: center;
     font-size: 0.75rem;
     padding: 6px 12px;
+    border-radius: 20px;
   }
 
   .progress-wrapper {
@@ -1189,11 +1191,23 @@ html {
 
   .hero h1 {
     font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1.1;
   }
 
+  .hero p {
+  font-size: 0.95rem;
+}
+
   .hero button {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  white-space: nowrap; 
+  width: auto;
   max-width: 260px;
+  padding: 0.8rem 1.6rem;
 }
 
   .nft-type-cards {
@@ -1222,6 +1236,13 @@ html {
 .creator-mint h3 {
   font-size: 1.1rem;
 }
+.brand-mark {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+}
+
+
+
 
 
 
