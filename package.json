@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@walletconnect/ethereum-provider": "^2.23.8",
+    "@web3modal/ethers": "^5.1.11",
     "ethers": "^6.16.0",
     "pinata-web3": "^0.5.4",
     "react": "^19.2.0",
