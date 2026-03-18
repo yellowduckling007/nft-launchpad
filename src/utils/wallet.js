@@ -3,6 +3,8 @@ import { createWeb3Modal, defaultConfig } from "@web3modal/ethers";
 
 const projectId = "21d27cad2953e853a2807c749b826a5f";
 
+let walletProvider = null;
+
 const sepolia = {
   chainId: 11155111,
   name: "Sepolia",
@@ -36,10 +38,15 @@ const modal = createWeb3Modal({
 
 // Get provider
 async function getProvider() {
-  if (!window.ethereum) {
-    throw new Error("No wallet detected");
+  if (walletProvider) {
+    return new ethers.BrowserProvider(walletProvider);
   }
-  return new ethers.BrowserProvider(window.ethereum);
+
+  if (window.ethereum) {
+    return new ethers.BrowserProvider(window.ethereum);
+  }
+
+  throw new Error("No wallet connected");
 }
 
 // Get signer
@@ -71,7 +78,7 @@ async function connectWallet() {
         if (state.open === false) {
           
           // Get the wallet provider from modal
-          const walletProvider = modal.getWalletProvider();
+          walletProvider = modal.getWalletProvider();
           
           if (walletProvider) {
             // Convert to ethers provider
