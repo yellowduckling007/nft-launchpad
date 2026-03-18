@@ -14,7 +14,7 @@ const sepolia = {
 const metadata = {
   name: "NFT Launchpad",
   description: "NFT Minting dApp",
-  url: "https://nft-launchpad-one.vercel.app",
+  url: window.location.origin,
   icons: []
 };
 
@@ -26,16 +26,15 @@ createWeb3Modal({
   projectId,
 });
 
-const web3Modal = new web3modal({
-    cacheProvider: true,
-});
-
 function isMobile() {
   return /iPhone|iPad|Android/i.test(navigator.userAgent);
 }
 
 
 async function getProvider() {
+   if (!window.ethereum) {
+    throw new Error("Wallet not connected");
+  }
   return new ethers.BrowserProvider(window.ethereum);
 }
 
@@ -54,9 +53,15 @@ async function connectWallet() {
     }
 
     // Mobile OR fallback: use WalletConnect
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    return await signer.getAddress();
+    const modal = document.querySelector("w3m-modal");
+
+    if (modal) {
+      modal.open();
+    } else {
+      console.error("Web3Modal not initialized");
+    }
+
+    return null;
 
   } catch (err) {
     console.error(err);
