@@ -173,16 +173,41 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
             return;
         }
 
-        setIsMintingCreator(true);
-        const signer = await getSigner();
-        const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
-        const tx = await contract.creatorMint(await signer.getAddress(), metadataURI);
-        await tx.wait();
-        alert("NFT minted successfully!");
-        const minted = await contract.totalMinted();
-        setTotalMinted(Number(minted));
-        setIsMintingCreator(false);
-        setMetadataURI("");
+        try {
+            setIsMintingCreator(true);
+
+            const signer = await getSigner();
+            const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
+
+            const tx = await contract.creatorMint(
+                await signer.getAddress(),
+                metadataURI
+            );
+
+            await tx.wait();
+
+            alert("NFT minted successfully!");
+
+            const minted = await contract.totalMinted();
+            setTotalMinted(Number(minted));
+
+            setMetadataURI("");
+
+        } catch (error) {
+            const isUserRejected =
+                error?.code === 4001 ||
+                error?.code === "ACTION_REJECTED" ||
+                error?.message?.toLowerCase().includes("user denied");
+
+            if (isUserRejected) {
+                alert("Transaction cancelled by user.");
+            } else {
+                console.error("Mint error:", error);
+                alert("Mint failed. Please try again.");
+            }
+        } finally {
+            setIsMintingCreator(false);
+        }
     };
 
 
@@ -274,43 +299,43 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
                 )}
 
-            
 
-            {contractMintMode === 0 && contractNftType === 0 && (
 
-                <div className="card card-hover creator-mint">
+                {contractMintMode === 0 && contractNftType === 0 && (
 
-                    <h3>Creator Mint</h3>
+                    <div className="card card-hover creator-mint">
 
-                    <div className="form-group">
-                        <label>Metadata URI</label>
+                        <h3>Creator Mint</h3>
 
-                        <input className="input"
-                            type="text"
-                            placeholder="Paste metadata URI"
-                            value={metadataURI}
-                            onChange={(e) => setMetadataURI(e.target.value)}
-                        />
+                        <div className="form-group">
+                            <label>Metadata URI</label>
+
+                            <input className="input"
+                                type="text"
+                                placeholder="Paste metadata URI"
+                                value={metadataURI}
+                                onChange={(e) => setMetadataURI(e.target.value)}
+                            />
+
+                        </div>
+
+                        <button
+                            className="btn-gold btn-primary"
+                            onClick={mintCreatorNFT}
+                            disabled={isMintingCreator}
+                        >
+                            {isMintingCreator ? "Minting..." : "Mint NFT"}
+                        </button>
 
                     </div>
 
-                    <button
-                        className="btn-gold btn-primary"
-                        onClick={mintCreatorNFT}
-                        disabled={isMintingCreator}
-                    >
-                        {isMintingCreator ? "Minting..." : "Mint NFT"}
-                    </button>
-
-                </div>
-
-            )}
+                )}
 
 
-            {contractMintMode === 1 && contractNftType === 1 && (
-                <p>Public Utility Mode</p>
-            )}
-        </div>
+                {contractMintMode === 1 && contractNftType === 1 && (
+                    <p>Public Utility Mode</p>
+                )}
+            </div>
 
         </div>
     );
