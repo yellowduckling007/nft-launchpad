@@ -40,22 +40,28 @@ async function getSigner() {
 
 async function connectWallet() {
   try {
-    // Desktop
-    if (window.ethereum) {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
-      return accounts[0];
-    }
-
-    // Mobile → open modal
     await modal.open();
 
-    return null;
+    return new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        if (window.ethereum) {
+          try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const accounts = await provider.listAccounts();
+
+            if (accounts.length > 0) {
+              clearInterval(interval);
+              resolve(accounts[0].address);
+            }
+          } catch (e) {}
+        }
+      }, 300);
+    });
 
   } catch (err) {
-    console.error(err);
+    console.error("Wallet connection error:", err);
     return null;
   }
-}  
+}
 
 export { getProvider, getSigner, connectWallet };
