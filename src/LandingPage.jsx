@@ -1,15 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { connectWallet } from "./utils/wallet";
+import { connectWallet,getSigner } from "./utils/wallet";
 
 function LandingPage({ walletAddress, setWalletAddress }) {
     const navigate = useNavigate();
 
     const handleConnectWallet = async () => {
-        const address = await connectWallet();
-        if (address) {
-            setWalletAddress(address);
-        }
-    };
+        await connectWallet(); // trigger modal
+
+    setTimeout(async () => {
+    try {
+        const signer = await getSigner();
+        const address = await signer.getAddress();
+        setWalletAddress(address);
+    } catch (err) {
+        console.error(err);
+    } 
+    }, 500);
+
+    }
 
     return (
         <div className="app-root">
