@@ -20,16 +20,11 @@ const metadata = {
 
 const ethersConfig = defaultConfig({ metadata });
 
-createWeb3Modal({
+const modal = createWeb3Modal({
   ethersConfig,
   chains: [sepolia],
   projectId,
 });
-
-function isMobile() {
-  return /iPhone|iPad|Android/i.test(navigator.userAgent);
-}
-
 
 async function getProvider() {
    if (!window.ethereum) {
@@ -44,22 +39,16 @@ async function getSigner() {
 }
 
 async function connectWallet() {
-    try {
-    // Desktop: use MetaMask directly
-    if (window.ethereum && !isMobile()) {
+  try {
+    // Desktop
+    if (window.ethereum) {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       return accounts[0];
     }
 
-    // Mobile OR fallback: use WalletConnect
-    const modal = document.querySelector("w3m-modal");
-
-    if (modal) {
-      modal.open();
-    } else {
-      console.error("Web3Modal not initialized");
-    }
+    // Mobile → open modal
+    await modal.open();
 
     return null;
 
@@ -67,6 +56,6 @@ async function connectWallet() {
     console.error(err);
     return null;
   }
-}   
+}  
 
 export { getProvider, getSigner, connectWallet };
