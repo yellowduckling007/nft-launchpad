@@ -5,7 +5,7 @@ import ArtistNFT from "./abi/ArtistNFT.json";
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { connectWallet } from './utils/wallet';
+import { connectWallet,getSigner } from './utils/wallet';
 
 function CreatePage({ walletAddress, setWalletAddress }) {
   const navigate = useNavigate();
@@ -77,8 +77,7 @@ function CreatePage({ walletAddress, setWalletAddress }) {
       setDeployStatus("deploying");
       setErrorMessage("");
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const signer = await getSigner();
       const factory = new ethers.ContractFactory(contractABI, contractByteCode, signer);
 
       const royaltyBps = Math.floor(Number(collection.royalty) * 100);
