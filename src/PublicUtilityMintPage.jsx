@@ -14,6 +14,7 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
     const [totalMinted, setTotalMinted] = useState(0);
     const [maxSupply, setMaxSupply] = useState(0);
     const [isMinting, setIsMinting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [metadata, setMetadata] = useState(null);
 
@@ -27,6 +28,9 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
     useEffect(() => {
 
         const fetchData = async () => {
+            try{
+
+            setIsLoading(true);
 
             const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
@@ -41,11 +45,17 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
             setTotalMinted(Number(minted));
             setMaxSupply(Number(max));
 
-            // 🔥 FETCH SINGLE METADATA
+            //FETCH SINGLE METADATA
             if (metadataURI) {
                 const res = await fetch(metadataURI);
                 const data = await res.json();
                 setMetadata(data);
+            }
+            } catch (err) {
+                console.error("Error fetching contract data:", err);
+                alert("Failed to load collection data");
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -83,6 +93,18 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
             setIsMinting(false);
         }
     };
+
+    
+    if (isLoading) {
+        return (
+            <div className="main-content">
+                <div className="status-banner status-deploying">
+                    <span className="spinner" />
+                    Loading your collection...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="app-root">

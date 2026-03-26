@@ -17,6 +17,7 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     const [nfts, setNfts] = useState([]);
     const [collectionDescription, setCollectionDescription] = useState("");
     const [creatorAddress, setCreatorAddress] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleConnectWallet = async () => {
         const address = await connectWallet();
@@ -31,7 +32,8 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
         const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
         const fetchData = async () => {
-
+            try{
+            setIsLoading(true);
             const name = await contract.name();
             const price = await contract.mintPrice();
             const minted = await contract.totalMinted();
@@ -67,6 +69,13 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
 
             setNfts(items);
             console.log("NFTs:", items);
+
+        } catch (err) {
+            console.error("Error fetching contract data:", err);
+            alert("Failed to load collection data");
+        } finally {
+            setIsLoading(false);
+        }
 
         };
 
@@ -131,6 +140,18 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
             }
             setIsMinting(false);
         }
+    }
+
+    
+    if (isLoading) {
+        return (
+            <div className="main-content">
+                <div className="status-banner status-deploying">
+                    <span className="spinner" />
+                    Loading your collection...
+                </div>
+            </div>
+        );
     }
 
     return (

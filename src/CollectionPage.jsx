@@ -347,7 +347,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
         const metadataFile = new File(
             [JSON.stringify(metadata)],
-            "1.json", // 🔥 FIXED
+            "1.json",
             { type: "application/json" }
         );
 
@@ -355,14 +355,14 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
             pinataJwt: import.meta.env.VITE_PINATA_JWT,
         });
 
-        // 🔥 Upload as folder
+        // Upload as folder
         const result = await pinata.upload.fileArray([metadataFile]);
 
         const folderCID = result.IpfsHash;
 
         const baseURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${folderCID}/`;
 
-        // 🔥 SET BASE URI
+        // SET BASE URI
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
