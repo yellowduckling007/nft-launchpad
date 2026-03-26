@@ -28,54 +28,54 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
 
     useEffect(() => {
 
-        const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
+        const provider = new ethers.BrowserProvider(window.ethereum);
         const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
         const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                const name = await contract.name();
-                const price = await contract.mintPrice();
-                const minted = await contract.totalMinted();
-                const max = await contract.maxSupply();
-                const baseURI = await contract.baseURI();
-                const owner = await contract.owner();
+            try{
+            setIsLoading(true);
+            const name = await contract.name();
+            const price = await contract.mintPrice();
+            const minted = await contract.totalMinted();
+            const max = await contract.maxSupply();
+            const baseURI = await contract.baseURI();
+            const owner = await contract.owner();
 
-                setCollectionName(name);
-                setMintPrice(ethers.formatEther(price));
-                setTotalMinted(Number(minted));
-                setMaxSupply(Number(max));
-                setCreatorAddress(owner);
+            setCollectionName(name);
+            setMintPrice(ethers.formatEther(price));
+            setTotalMinted(Number(minted));
+            setMaxSupply(Number(max));
+            setCreatorAddress(owner);
 
-                const items = [];
+            const items = [];
 
-                for (let i = 1; i <= max; i++) {
+            for (let i = 1; i <= max; i++) {
 
-                    const response = await fetch(`${baseURI}${i}.json`);
-                    const metadata = await response.json();
+                const response = await fetch(`${baseURI}${i}.json`);
+                const metadata = await response.json();
 
-                    if (i === 1) {
-                        setCollectionDescription(metadata.description);
-                    }
-
-                    items.push({
-                        tokenId: i,
-                        image: metadata.image,
-                        name: metadata.name,
-                        minted: i <= minted
-                    });
-
+                if (i === 1) {
+                    setCollectionDescription(metadata.description);
                 }
 
-                setNfts(items);
-                console.log("NFTs:", items);
+                items.push({
+                    tokenId: i,
+                    image: metadata.image,
+                    name: metadata.name,
+                    minted: i <= minted
+                });
 
-            } catch (err) {
-                console.error("Error fetching contract data:", err);
-                alert("Failed to load collection data");
-            } finally {
-                setIsLoading(false);
             }
+
+            setNfts(items);
+            console.log("NFTs:", items);
+
+        } catch (err) {
+            console.error("Error fetching contract data:", err);
+            alert("Failed to load collection data");
+        } finally {
+            setIsLoading(false);
+        }
 
         };
 
@@ -142,7 +142,7 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
         }
     }
 
-
+    
     if (isLoading) {
         return (
             <div className="main-content">
