@@ -21,44 +21,56 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
     const [maxSupply, setMaxSupply] = useState(0);
     const [images, setImages] = useState([]);
     const [baseCID, setBaseCID] = useState("");
+
     const [isPreparing, setIsPreparing] = useState(false);
     const [collectionDescription, setCollectionDescription] = useState("");
     const [collectionName, setCollectionName] = useState("");
     const [metadataURI, setMetadataURI] = useState("");
+    const [isCollectionPrepared, setIsCollectionPrepared] = useState(false);
     const [isMintingCreator, setIsMintingCreator] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [utilityImage, setUtilityImage] = useState(null);
 
+    const [mintSuccess, setMintSuccess] = useState(false);
+    const [mintedTokenId, setMintedTokenId] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const fetchContractDetails = async () => {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
+            try {
+                setIsLoading(true);
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
-            const name = await contract.name();
-            console.log("Collection Name:", name);
-            const owner = await contract.owner();
-            console.log("Contract Owner:", owner);
-            const mintMode = await contract.mintMode();
-            console.log("Mint Mode:", mintMode);
-            const mintPrice = await contract.mintPrice();
-            console.log("Mint Price:", mintPrice);
-            const nftType = await contract.nftType();
-            console.log("NFT Type:", nftType);
-            const totalMinted = await contract.totalMinted();
-            console.log("Total Minted:", totalMinted);
-            const maxSupply = await contract.maxSupply();
-            console.log("Max Supply:", maxSupply);
+                const name = await contract.name();
+                const owner = await contract.owner();
+                const mintMode = await contract.mintMode();
+                const mintPrice = await contract.mintPrice();
+                const nftType = await contract.nftType();
+                const totalMinted = await contract.totalMinted();
+                const maxSupply = await contract.maxSupply();
+                const baseURI = await contract.baseURI();
 
-            setContractOwner(owner);
-            setContractMintMode(Number(mintMode));
-            setContractMintPrice(ethers.formatEther(mintPrice));
-            setContractNftType(Number(nftType));
-            setTotalMinted(Number(totalMinted));
-            setMaxSupply(Number(maxSupply));
-            setCollectionName(name);
+                setContractOwner(owner);
+                setContractMintMode(Number(mintMode));
+                setContractMintPrice(ethers.formatEther(mintPrice));
+                setContractNftType(Number(nftType));
+                setTotalMinted(Number(totalMinted));
+                setMaxSupply(Number(maxSupply));
+                setCollectionName(name);
 
-            console.log("Mint Mode:", mintMode);
-            console.log("NFT Type:", nftType);
+                if (baseURI && baseURI !== "") {
+                    setIsCollectionPrepared(true);
+                }
 
+            }
+            catch (error) {
+                console.error("Error fetching contract details:", error);
+                alert("Failed to load collection details. Please try again.");
+            }
+            finally {
+                setIsLoading(false);
+            }
         };
 
         fetchContractDetails();
@@ -142,7 +154,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
             });
             const result = await pinata.upload.fileArray(metadataFiles);
             const folderCID = result.IpfsHash;
-            setBaseCID(folderCID);
+
             console.log("Metadata Folder CID:", folderCID);
             /* ----------Set baseURI ---------- */
             const baseURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${folderCID}/`;
@@ -156,6 +168,9 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
             setIsPreparing(false);
             alert("Collection prepared successfully!");
+            setBaseCID(folderCID);
+            setIsCollectionPrepared(true);
+
 
         } catch (error) {
             console.error(error);
@@ -184,9 +199,21 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                 metadataURI
             );
 
-            await tx.wait();
+            const receipt = await tx.wait();
 
-            alert("NFT minted successfully!");
+            // Extract tokenId from Transfer event
+            const event = receipt.logs.find(
+                log => log.fragment && log.fragment.name === "Transfer"
+            );
+
+            const tokenId = event?.args?.tokenId?.toString();
+
+            // fallback (safe)
+            const finalTokenId = tokenId || (await contract.totalMinted()).toString();
+
+            setMintedTokenId(finalTokenId);
+            setMintSuccess(true);
+
 
             const minted = await contract.totalMinted();
             setTotalMinted(Number(minted));
@@ -210,7 +237,171 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
         }
     };
 
+    const mintUtilityNFT = async () => {
+        if (!collectionDescription) {
+            alert("Please add description");
+            return;
+        }
 
+        try {
+            setIsMintingCreator(true);
+
+            // 1. Upload image (optional)
+            let imageURL = "";
+            if (utilityImage) {
+                const formData = new FormData();
+                formData.append("file", utilityImage);
+
+                const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+                    },
+                    body: formData,
+                });
+
+                const data = await res.json();
+                imageURL = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${data.IpfsHash}`;
+            }
+
+            // 2. Create metadata
+            const metadata = {
+                name: collectionName || "Utility NFT",
+                description: collectionDescription,
+                image: imageURL,
+            };
+
+            const metadataFile = new File(
+                [JSON.stringify(metadata)],
+                "metadata.json",
+                { type: "application/json" }
+            );
+
+            // 3. Upload metadata
+            const pinata = new PinataSDK({
+                pinataJwt: import.meta.env.VITE_PINATA_JWT,
+            });
+
+            const result = await pinata.upload.file(metadataFile);
+            const metadataURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${result.IpfsHash}`;
+
+            // 4. Mint
+            const signer = await getSigner();
+            const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
+
+            const tx = await contract.creatorMint(
+                await signer.getAddress(),
+                metadataURI
+            );
+
+            await tx.wait();
+            const minted = await contract.totalMinted();
+            setTotalMinted(Number(minted));
+
+            alert("Utility NFT minted!");
+            setCollectionDescription("");
+            setUtilityImage(null);
+
+        } catch (err) {
+            console.error(err);
+            alert("Mint failed");
+        } finally {
+            setIsMintingCreator(false);
+        }
+    };
+
+   const prepareUtilityCollection = async () => {
+    if (!collectionDescription) {
+        alert("Please add description");
+        return;
+    }
+
+    try {
+        setIsPreparing(true);
+
+        let imageURL = "";
+
+        // Upload image
+        if (utilityImage) {
+            const formData = new FormData();
+            formData.append("file", utilityImage);
+
+            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+                },
+                body: formData,
+            });
+
+            const data = await res.json();
+            imageURL = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${data.IpfsHash}`;
+        }
+
+        // ✅ Create metadata as 1.json
+        const metadata = {
+            name: collectionName || "Utility NFT",
+            description: collectionDescription,
+            image: imageURL,
+        };
+
+        const metadataFile = new File(
+            [JSON.stringify(metadata)],
+            "1.json", // 🔥 FIXED
+            { type: "application/json" }
+        );
+
+        const pinata = new PinataSDK({
+            pinataJwt: import.meta.env.VITE_PINATA_JWT,
+        });
+
+        // 🔥 Upload as folder
+        const result = await pinata.upload.fileArray([metadataFile]);
+
+        const folderCID = result.IpfsHash;
+
+        const baseURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${folderCID}/`;
+
+        // 🔥 SET BASE URI
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
+
+        const tx = await contract.setBaseURI(baseURI);
+        await tx.wait();
+
+        // optional (for your link)
+        setMetadataURI(`${baseURI}1.json`);
+
+        setIsCollectionPrepared(true);
+        setIsPreparing(false);
+
+        alert("Utility collection ready!");
+
+    } catch (err) {
+        console.error(err);
+        setIsPreparing(false);
+        alert("Preparation failed");
+    }
+}; 
+
+
+    if (isLoading) {
+        return (
+            <div className="main-content">
+                <div className="status-banner status-deploying">
+                    <span className="spinner" />
+                    Loading your collection...
+                </div>
+            </div>
+        );
+    }
+
+    const copyAddress = () => {
+        navigator.clipboard.writeText(Address);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     return (
         <div className="main-content">
@@ -245,7 +436,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
                 </div>
 
-                {contractMintMode === 1 && contractNftType === 0 && (
+                {contractMintMode === 1 && contractNftType === 0 && !isCollectionPrepared && (
                     <div className="card card-hover collection-upload">
                         <h3>Prepare Collection</h3>
                         <div className="form-group">
@@ -283,57 +474,139 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                         >
                             {isPreparing ? "Preparing..." : "Prepare Collection"}
                         </button>
-
-                        {baseCID && (
-                            <div className="collection-ready">
-                                <p>Collection prepared successfully</p>
-
-                                <a href={`/public/${address}`}>
-                                    Open Public Mint Page →
-                                </a>
-                            </div>
-                        )}
-
-
                     </div>
+                )}
 
+                {contractMintMode === 1 && contractNftType === 0 && isCollectionPrepared && (
+                    <div className="collection-ready">
+                        <p>Collection prepared</p>
+
+                        <a href={`/public/${address}`}>
+                            Open Public Mint Page →
+                        </a>
+                    </div>
                 )}
 
 
 
                 {contractMintMode === 0 && contractNftType === 0 && (
+                    mintSuccess ? (
 
-                    <div className="card card-hover creator-mint">
+                        // SUCCESS CARD (ONLY HERE)
+                        <div className="card card-hover success-card">
 
-                        <h3>Creator Mint</h3>
+                            <h3 className="text-gold">NFT Minted Successfully!</h3>
 
-                        <div className="form-group">
-                            <label>Metadata URI</label>
+                            <p><span>Token ID</span> #{mintedTokenId}</p>
 
-                            <input className="input"
-                                type="text"
-                                placeholder="Paste metadata URI"
-                                value={metadataURI}
-                                onChange={(e) => setMetadataURI(e.target.value)}
-                            />
+                            <p>
+                                <span>Contract</span>
+                                {address.slice(0, 6)}...{address.slice(-4)}
+                            </p>
+
+                            <div className="success-actions">
+
+                                <button
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        setMintSuccess(false);
+                                        setMetadataURI("");
+                                    }}
+                                >
+                                    Mint Again?
+                                </button>
+                            </div>
+
+                            <div className="hint-box">
+                                <p>Can't see your NFT in your wallet ?</p>
+                                <small>
+                                    Import using contract address + token ID in MetaMask
+                                </small>
+                            </div>
 
                         </div>
 
-                        <button
-                            className="btn-gold btn-primary"
-                            onClick={mintCreatorNFT}
-                            disabled={isMintingCreator}
-                        >
-                            {isMintingCreator ? "Minting..." : "Mint NFT"}
-                        </button>
+                    ) : (
 
-                    </div>
 
+                        <div className="card card-hover creator-mint">
+
+                            <h3>Creator Mint</h3>
+
+                            <div className="form-group">
+                                <label>Metadata URI</label>
+
+                                <input className="input"
+                                    type="text"
+                                    placeholder="Paste metadata URI"
+                                    value={metadataURI}
+                                    onChange={(e) => setMetadataURI(e.target.value)}
+                                />
+
+                            </div>
+
+                            <button
+                                className="btn-gold btn-primary"
+                                onClick={mintCreatorNFT}
+                                disabled={isMintingCreator}
+                            >
+                                {isMintingCreator ? "Minting..." : "Mint NFT"}
+                            </button>
+
+                        </div>
+                    )
                 )}
 
 
+
                 {contractMintMode === 1 && contractNftType === 1 && (
-                    <p>Public Utility Mode</p>
+
+                    <div className="card card-hover collection-upload">
+
+                        <h3>Setup Utility NFT</h3>
+
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea
+                                placeholder="Describe what this NFT gives access to"
+                                value={collectionDescription}
+                                onChange={(e) => setCollectionDescription(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Upload Image (optional)</label>
+                            <input
+                                className="input"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setUtilityImage(e.target.files[0])}
+                            />
+                        </div>
+
+                        {!isCollectionPrepared ? (
+
+                            <button
+                                className="btn-primary prepare-btn"
+                                onClick={prepareUtilityCollection}
+                                disabled={isPreparing}
+                            >
+                                {isPreparing ? "Preparing..." : "Create Collection"}
+                            </button>
+
+                        ) : (
+
+                            <div className="collection-ready">
+                                <p>Your NFT collection  is ready!</p>
+
+                                <a href={`/utility/${address}?uri=${metadataURI}`}>
+                                    Open Public Mint Page →
+                                </a>
+                            </div>
+
+                        )}
+
+                    </div>
                 )}
             </div>
 

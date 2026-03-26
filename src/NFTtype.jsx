@@ -20,7 +20,7 @@ function NFTTypeSelector({ nftType, setNftType }) {
           onClick={() => setNftType("UTILITY")}
         >
           <h3>Utility NFT</h3>
-          <p>Tickets, access, certificates</p>
+          <p>Tickets, access passes</p>
         </div>
       </div>
     </div>

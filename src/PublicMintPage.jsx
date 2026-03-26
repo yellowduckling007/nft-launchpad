@@ -136,10 +136,10 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     return (
         <div className="app-root">
             <div className="top-bar">
-                <div className="brand-mark">✦ MintX</div>
+                <div className="brand-mark">✦ MintNFT</div>
                 <button className="wallet-pill" onClick={handleConnectWallet}>
                     {walletAddress
-                        ? walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4)
+                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
                         : "Connect Wallet"}
                 </button>
             </div>

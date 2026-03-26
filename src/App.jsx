@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CreatePage from './CreatePage';
 import CollectionPage from './CollectionPage';
 import PublicMintPage from './PublicMintPage';
+import PublicUtilityMintPage from './PublicUtilityMintPage';
 import { useState } from 'react';
 
 function App() {
@@ -23,6 +24,10 @@ function App() {
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
         <Route path="/public/:address" element={<PublicMintPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+
+        <Route path="/utility/:address" element={<PublicUtilityMintPage
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
       </Routes>

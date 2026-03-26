@@ -194,6 +194,7 @@ function CreatePage({ walletAddress, setWalletAddress }) {
                 setMintPrice={setMintPrice}
                 transferable={transferable}
                 setTransferable={setTransferable}
+                nftType={nftType}
               />
             )}
 
