@@ -158,6 +158,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
             console.log("Metadata Folder CID:", folderCID);
             /* ----------Set baseURI ---------- */
             const baseURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${folderCID}/`;
+            console.log("SETTING BASE URI:", baseURI);
 
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();

@@ -78,7 +78,7 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
 
             const price = await contract.mintPrice();
 
-            const tx = await contract.publicMint({ value: price });
+            const tx = await contract.publicMintSelected(metadataURI, { value: price });
             await tx.wait();
 
             alert("NFT Minted!");

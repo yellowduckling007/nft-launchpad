@@ -4,6 +4,40 @@ import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { connectWallet } from './utils/wallet';
 import { getSigner } from "./utils/wallet";
+import { useRef } from "react";
+
+async function waitForEthereum() {
+    if (window.ethereum) return;
+
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+
+        const interval = setInterval(() => {
+            if (window.ethereum) {
+                clearInterval(interval);
+                resolve();
+            }
+
+            attempts++;
+            if (attempts > 20) {
+                clearInterval(interval);
+                reject("MetaMask not injected");
+            }
+        }, 300);
+    });
+}
+
+async function safeFetch(url) {
+    for (let i = 0; i < 3; i++) {
+        try {
+            const res = await fetch(url);
+            if (res.ok) return res;
+        } catch { }
+
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    throw new Error("Fetch failed");
+}
 
 function PublicMintPage({ walletAddress, setWalletAddress }) {
 
@@ -18,6 +52,13 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     const [collectionDescription, setCollectionDescription] = useState("");
     const [creatorAddress, setCreatorAddress] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedNFT, setSelectedNFT] = useState(null);
+    const [baseURI, setBaseURI] = useState("");
+    const selectedNFTRef = useRef(null);
+
+    useEffect(() => {
+        selectedNFTRef.current = selectedNFT;
+    }, [selectedNFT]);
 
     const handleConnectWallet = async () => {
         const address = await connectWallet();
@@ -28,14 +69,13 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
 
     useEffect(() => {
         const init = async () => {
-            // Wait for window.ethereum to be injected
-            if (!window.ethereum) {
-                await new Promise(resolve => {
-                    window.addEventListener('ethereum#initialized', resolve, { once: true });
-                    setTimeout(resolve, 3000);
-                });
+            try {
+                await waitForEthereum();
+                console.log("Ethereum ready:", window.ethereum);
+            } catch (e) {
+                alert("Please open inside MetaMask browser");
+                return;
             }
-
             const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
@@ -47,6 +87,7 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                     const minted = await contract.totalMinted();
                     const max = await contract.maxSupply();
                     const baseURI = await contract.baseURI();
+                    console.log("BASE URI FROM CONTRACT:", baseURI);
                     const owner = await contract.owner();
 
                     setCollectionName(name);
@@ -54,22 +95,28 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                     setTotalMinted(Number(minted));
                     setMaxSupply(Number(max));
                     setCreatorAddress(owner);
+                    setBaseURI(baseURI);
+
+                    //const uri = await contract.tokenURI(1);
+                    //console.log("ACTUAL TOKEN URI:", uri);
 
                     const items = [];
 
                     for (let i = 1; i <= max; i++) {
-                        const response = await fetch(`${baseURI}${i}.json`);
+
+                        const uri = `${baseURI}${i}.json`;
+
+                        const response = await safeFetch(uri);
                         const metadata = await response.json();
 
-                        if (i === 1) {
-                            setCollectionDescription(metadata.description);
-                        }
+                        const isMinted = await contract.usedMetadata(uri);  // ✅ ADD THIS
 
                         items.push({
                             tokenId: i,
                             image: metadata.image,
                             name: metadata.name,
-                            minted: i <= minted
+                            uri: uri,                // ✅ VERY IMPORTANT
+                            minted: isMinted         // ✅ FIXED LOGIC
                         });
                     }
 
@@ -88,17 +135,19 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
 
             contract.on("Transfer", async (from, to, tokenId) => {
                 if (from === ethers.ZeroAddress) {
-                    console.log("New NFT minted:", tokenId.toString());
                     const minted = await contract.totalMinted();
                     setTotalMinted(Number(minted));
 
-                    setNfts(prev =>
-                        prev.map(nft =>
-                            nft.tokenId <= minted
-                                ? { ...nft, minted: true }
-                                : nft
-                        )
-                    );
+                    // use ref instead of selectedNFT directly
+                    if (selectedNFTRef.current) {
+                        setNfts(prev =>
+                            prev.map(nft =>
+                                nft.uri === selectedNFTRef.current.uri
+                                    ? { ...nft, minted: true }
+                                    : nft
+                            )
+                        );
+                    }
                 }
             });
 
@@ -112,6 +161,12 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     }, [address]);
 
     const handleMint = async () => {
+        if (!selectedNFT) {
+            alert("Please select an NFT first");
+            return;
+        }
+
+        console.log("Minting URI:", selectedNFT.uri);
         if (!walletAddress) {
             alert("Please connect your wallet first.");
             return;
@@ -127,14 +182,26 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
             const contract = new ethers.Contract(address, ArtistNFT.abi, signer);
 
             const price = await contract.mintPrice();
-            const tx = await contract.publicMint({ value: price });
+            console.log("Minting URI:", selectedNFT.uri);
+            console.log("Selected NFT:", selectedNFT);
+            const tx = await contract.publicMintSelected(selectedNFT.uri, {
+                value: price
+            });
 
             await tx.wait();
             alert("NFT Minted!");
 
+            // update the minted state of the selected NFT immediately
+            setNfts(prev =>
+                prev.map(nft =>
+                    nft.uri === selectedNFT.uri
+                        ? { ...nft, minted: true }
+                        : nft
+                )
+            );
+            setSelectedNFT(null);  // deselect after mint
             const minted = await contract.totalMinted();
             setTotalMinted(Number(minted));
-
             setIsMinting(false);
 
         } catch (err) {
@@ -212,9 +279,13 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                     <button
                         className="btn-primary btn-deploy"
                         onClick={handleMint}
-                        disabled={isMinting}
+                        disabled={isMinting || !selectedNFT}
                     >
-                        {isMinting ? "Minting..." : "Mint next NFT"}
+                        {isMinting
+                            ? "Minting..."
+                            : selectedNFT
+                                ? `Mint ${selectedNFT.name}`
+                                : "Select an NFT to mint"}
                     </button>
                 </div>
 
@@ -223,7 +294,16 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                     <h2 className="section-heading">Items</h2>
                     <div className="nft-grid">
                         {nfts.map((nft) => (
-                            <div key={nft.tokenId} className="card card-hover nft-card">
+                            <div
+                                key={nft.tokenId}
+                                className={`card card-hover nft-card ${selectedNFT?.tokenId === nft.tokenId ? "selected" : ""}`}
+                                onClick={() => {
+                                    console.log("Clicked NFT:", nft);
+                                    if (!nft.minted) {
+                                        setSelectedNFT(nft);
+                                    }
+                                }}
+                            >
                                 <img src={nft.image} alt={nft.name} />
                                 <p>{nft.name}</p>
                                 {nft.minted && <span className="minted-label">Minted</span>}
