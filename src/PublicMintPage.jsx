@@ -68,77 +68,102 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     };
 
     useEffect(() => {
-        const init = async () => {
-            try {
-                await waitForEthereum();
-                console.log("Ethereum ready:", window.ethereum);
-            } catch (e) {
-                alert("Please open inside MetaMask browser");
-                return;
-            }
+    const init = async () => {
+
+        try {
+            // STEP 1 — Wait for MetaMask
+            await waitForEthereum();
+            alert("MetaMask detected");
+
+            // STEP 2 — small delay (VERY IMPORTANT for mobile)
+            await new Promise(res => setTimeout(res, 1000));
+
             const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
+            // =========================
+            // FETCH DATA
+            // =========================
             const fetchData = async () => {
+
+                setIsLoading(true);
+
+                let name, price, minted, max, baseURI, owner;
+
+                // 🔹 STEP A — contract reads
                 try {
-                    setIsLoading(true);
-                    const name = await contract.name();
-                    const price = await contract.mintPrice();
-                    const minted = await contract.totalMinted();
-                    const max = await contract.maxSupply();
-                    const baseURI = await contract.baseURI();
-                    console.log("BASE URI FROM CONTRACT:", baseURI);
-                    const owner = await contract.owner();
+                    alert("Reading contract...");
 
-                    setCollectionName(name);
-                    setMintPrice(ethers.formatEther(price));
-                    setTotalMinted(Number(minted));
-                    setMaxSupply(Number(max));
-                    setCreatorAddress(owner);
-                    setBaseURI(baseURI);
+                    name = await contract.name();
+                    price = await contract.mintPrice();
+                    minted = await contract.totalMinted();
+                    max = await contract.maxSupply();
+                    baseURI = await contract.baseURI();
+                    owner = await contract.owner();
 
-                    //const uri = await contract.tokenURI(1);
-                    //console.log("ACTUAL TOKEN URI:", uri);
+                    alert("Contract loaded");
 
-                    const items = [];
+                } catch (err) {
+                    alert(" CONTRACT READ FAILED");
+                    console.error(err);
+                    setIsLoading(false);
+                    return;
+                }
 
-                    for (let i = 1; i <= max; i++) {
+                setCollectionName(name);
+                setMintPrice(ethers.formatEther(price));
+                setTotalMinted(Number(minted));
+                setMaxSupply(Number(max));
+                setCreatorAddress(owner);
+                setBaseURI(baseURI);
 
+                const items = [];
+
+                // 🔹 STEP B — metadata fetch
+                for (let i = 1; i <= max; i++) {
+                    try {
                         const uri = `${baseURI}${i}.json`;
+
+                        alert("Fetching NFT " + i);
 
                         const response = await safeFetch(uri);
                         const metadata = await response.json();
 
-                        const isMinted = await contract.usedMetadata(uri);  // ✅ ADD THIS
+                        let isMinted = false;
+
+                        try {
+                            isMinted = await contract.usedMetadata(uri);
+                        } catch (e) {
+                            console.warn("Mint check failed");
+                        }
 
                         items.push({
                             tokenId: i,
                             image: metadata.image,
                             name: metadata.name,
-                            uri: uri,                // ✅ VERY IMPORTANT
-                            minted: isMinted         // ✅ FIXED LOGIC
+                            uri: uri,
+                            minted: isMinted
                         });
+
+                    } catch (err) {
+                        alert(" METADATA FAILED at " + i);
+                        console.error(err);
                     }
-
-                    setNfts(items);
-                    console.log("NFTs:", items);
-
-                } catch (err) {
-                    console.error("Error fetching contract data:", err);
-                    alert("Failed to load collection data");
-                } finally {
-                    setIsLoading(false);
                 }
+
+                setNfts(items);
+                setIsLoading(false);
             };
 
-            fetchData();
+            await fetchData();
 
+            // =========================
+            // EVENT LISTENER
+            // =========================
             contract.on("Transfer", async (from, to, tokenId) => {
                 if (from === ethers.ZeroAddress) {
                     const minted = await contract.totalMinted();
                     setTotalMinted(Number(minted));
-
-                    // use ref instead of selectedNFT directly
                     if (selectedNFTRef.current) {
                         setNfts(prev =>
                             prev.map(nft =>
@@ -151,14 +176,15 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                 }
             });
 
-            return () => {
-                contract.removeAllListeners("Transfer");
-            };
-        };
+        } catch (err) {
+            alert(" INIT FAILED");
+            console.error(err);
+        }
+    };
 
-        init();
+    init();
 
-    }, [address]);
+}, [address]);
 
     const handleMint = async () => {
         if (!selectedNFT) {
