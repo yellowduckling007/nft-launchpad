@@ -6,6 +6,40 @@ import { connectWallet } from './utils/wallet';
 import { getSigner } from "./utils/wallet";
 import { useRef } from "react";
 
+async function switchToSepolia() {
+    const sepoliaChainId = "0xaa36a7"; // 11155111 in hex
+
+    try {
+        await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: sepoliaChainId }],
+        });
+    } catch (switchError) {
+
+        // If Sepolia not added → add it
+        if (switchError.code === 4902) {
+            await window.ethereum.request({
+                method: "wallet_addEthereumChain",
+                params: [
+                    {
+                        chainId: sepoliaChainId,
+                        chainName: "Sepolia Testnet",
+                        nativeCurrency: {
+                            name: "Sepolia ETH",
+                            symbol: "ETH",
+                            decimals: 18,
+                        },
+                        rpcUrls: ["https://rpc.sepolia.org"],
+                        blockExplorerUrls: ["https://sepolia.etherscan.io"],
+                    },
+                ],
+            });
+        } else {
+            throw switchError;
+        }
+    }
+}
+
 async function waitForEthereum() {
     if (window.ethereum) return;
 
@@ -77,6 +111,8 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
             try {
     await window.ethereum.request({ method: "eth_requestAccounts" });
     alert("Wallet connected");
+    await switchToSepolia();
+alert("Switched to Sepolia");
 } catch (err) {
     alert("Please connect your wallet");
     return;
