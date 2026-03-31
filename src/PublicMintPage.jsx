@@ -74,6 +74,13 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
             // STEP 1 — Wait for MetaMask
             await waitForEthereum();
             alert("MetaMask detected");
+            try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    alert("Wallet connected");
+} catch (err) {
+    alert("Please connect your wallet");
+    return;
+}
 
             // STEP 2 — small delay (VERY IMPORTANT for mobile)
             await new Promise(res => setTimeout(res, 1000));
