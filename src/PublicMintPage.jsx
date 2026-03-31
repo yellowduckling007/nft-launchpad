@@ -2,64 +2,8 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
-import { connectWallet } from './utils/wallet';
-import { getSigner } from "./utils/wallet";
+import { connectWallet , getSigner , getReadyProvider } from './utils/wallet';
 import { useRef } from "react";
-
-async function switchToSepolia() {
-    const sepoliaChainId = "0xaa36a7"; // 11155111 in hex
-
-    try {
-        await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: sepoliaChainId }],
-        });
-    } catch (switchError) {
-
-        // If Sepolia not added , add it
-        if (switchError.code === 4902) {
-            await window.ethereum.request({
-                method: "wallet_addEthereumChain",
-                params: [
-                    {
-                        chainId: sepoliaChainId,
-                        chainName: "Sepolia Testnet",
-                        nativeCurrency: {
-                            name: "Sepolia ETH",
-                            symbol: "ETH",
-                            decimals: 18,
-                        },
-                        rpcUrls: ["https://rpc.sepolia.org"],
-                        blockExplorerUrls: ["https://sepolia.etherscan.io"],
-                    },
-                ],
-            });
-        } else {
-            throw switchError;
-        }
-    }
-}
-
-async function waitForEthereum() {
-    if (window.ethereum) return;
-
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-
-        const interval = setInterval(() => {
-            if (window.ethereum) {
-                clearInterval(interval);
-                resolve();
-            }
-
-            attempts++;
-            if (attempts > 20) {
-                clearInterval(interval);
-                reject("MetaMask not injected");
-            }
-        }, 300);
-    });
-}
 
 async function safeFetch(url) {
     for (let i = 0; i < 3; i++) {
@@ -104,33 +48,7 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
     useEffect(() => {
         const init = async () => {
             try {
-                // Wait for MetaMask
-                await waitForEthereum();
-
-                // Connect wallet if not connected
-                try {
-                    const accounts = await window.ethereum.request({
-                        method: "eth_accounts"
-                    });
-
-                    if (accounts.length === 0) {
-                        await window.ethereum.request({
-                            method: "eth_requestAccounts"
-                        });
-                    }
-
-                    // Switch network
-                    await switchToSepolia();
-
-                } catch (err) {
-                    console.error("Wallet connection failed");
-                    return;
-                }
-
-                //Small delay for mobile stability
-                await new Promise(res => setTimeout(res, 1000));
-
-                const provider = new ethers.BrowserProvider(window.ethereum);
+                const provider = await getReadyProvider();
                 const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
                 const fetchData = async () => {

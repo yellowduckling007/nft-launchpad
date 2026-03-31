@@ -114,4 +114,72 @@ async function connectWallet() {
   }
 }
 
-export { getProvider, getSigner, connectWallet };
+// ✅ New: Fully ready provider (MetaMask safe)
+async function getReadyProvider() {
+
+  // 1. Wait for MetaMask injection
+  if (!window.ethereum) {
+    await new Promise((resolve, reject) => {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (window.ethereum) {
+          clearInterval(interval);
+          resolve();
+        }
+        attempts++;
+        if (attempts > 20) {
+          clearInterval(interval);
+          reject("MetaMask not found");
+        }
+      }, 300);
+    });
+  }
+
+  // 2. Ensure wallet is connected
+  const accounts = await window.ethereum.request({
+    method: "eth_accounts"
+  });
+
+  if (accounts.length === 0) {
+    await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+  }
+
+  // 3. Ensure correct network (Sepolia)
+  const sepoliaChainId = "0xaa36a7";
+
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: sepoliaChainId }]
+    });
+  } catch (err) {
+    if (err.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: sepoliaChainId,
+          chainName: "Sepolia Testnet",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18
+          },
+          rpcUrls: ["https://rpc.sepolia.org"],
+          blockExplorerUrls: ["https://sepolia.etherscan.io"]
+        }]
+      });
+    } else {
+      throw err;
+    }
+  }
+
+  // 4. Small delay (important for mobile)
+  await new Promise(res => setTimeout(res, 800));
+
+  // 5. Return provider
+  return new ethers.BrowserProvider(window.ethereum);
+}
+
+export { getProvider, getSigner, connectWallet , getReadyProvider };
