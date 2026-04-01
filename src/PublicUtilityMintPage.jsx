@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
-import { connectWallet, getSigner } from "./utils/wallet";
+import { connectWallet, getSigner, getReadyProvider } from "./utils/wallet";
 
 function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
 
@@ -18,7 +18,8 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
 
     const [metadata, setMetadata] = useState(null);
 
-    const metadataURI = searchParams.get("uri");
+    const rawURI = searchParams.get("uri");
+const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
 
     const handleConnectWallet = async () => {
         const addr = await connectWallet();
@@ -28,29 +29,37 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
     useEffect(() => {
 
         const fetchData = async () => {
-            try{
+            try {
 
-            setIsLoading(true);
+                setIsLoading(true);
 
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
+                const provider = await getReadyProvider();
+                const contract = new ethers.Contract(address, ArtistNFT.abi, provider);
 
-            const name = await contract.name();
-            const price = await contract.mintPrice();
-            const minted = await contract.totalMinted();
-            const max = await contract.maxSupply();
+                const name = await contract.name();
+                const price = await contract.mintPrice();
+                const minted = await contract.totalMinted();
+                const max = await contract.maxSupply();
 
-            setCollectionName(name);
-            setMintPrice(ethers.formatEther(price));
-            setTotalMinted(Number(minted));
-            setMaxSupply(Number(max));
+                setCollectionName(name);
+                setMintPrice(ethers.formatEther(price));
+                setTotalMinted(Number(minted));
+                setMaxSupply(Number(max));
 
-            //FETCH SINGLE METADATA
-            if (metadataURI) {
-                const res = await fetch(metadataURI);
-                const data = await res.json();
-                setMetadata(data);
-            }
+                //FETCH SINGLE METADATA
+                if (metadataURI) {
+                    let res;
+                    for (let i = 0; i < 3; i++) {
+                        try {
+                            res = await fetch(metadataURI);
+                            if (res.ok) break;
+                        } catch { }
+
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
+                    const data = await res.json();
+                    setMetadata(data);
+                }
             } catch (err) {
                 console.error("Error fetching contract data:", err);
                 alert("Failed to load collection data");
@@ -94,7 +103,7 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
         }
     };
 
-    
+
     if (isLoading) {
         return (
             <div className="main-content">
@@ -125,31 +134,31 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress }) {
                     <p className="utility-desc">{metadata?.description}</p>
                 </div>
 
-                    <div className="utility-wrapper">
+                <div className="utility-wrapper">
 
-                        <div className="card utility-card">
-                            {metadata?.image && (
-                                <div className="image-container">
-                                    <img src={metadata.image} alt="NFT" />
-                                </div>
-                            )}
-
-                            <div className="meta-row">
-                                <span>{mintPrice} ETH</span>
-                                <span>{totalMinted} / {maxSupply}</span>
+                    <div className="card utility-card">
+                        {metadata?.image && (
+                            <div className="image-container">
+                                <img src={metadata.image} alt="NFT" />
                             </div>
+                        )}
 
-                            <button
-                                className="btn-gold btn-primary utility-btn"
-                                onClick={handleMint}
-                                disabled={isMinting}
-                            >
-                                {isMinting ? "Minting..." : "Get Your NFT"}
-                            </button>
-
+                        <div className="meta-row">
+                            <span>{mintPrice} ETH</span>
+                            <span>{totalMinted} / {maxSupply}</span>
                         </div>
 
+                        <button
+                            className="btn-gold btn-primary utility-btn"
+                            onClick={handleMint}
+                            disabled={isMinting}
+                        >
+                            {isMinting ? "Minting..." : "Get Your NFT"}
+                        </button>
+
                     </div>
+
+                </div>
             </main>
         </div>
     );

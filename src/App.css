@@ -55,6 +55,21 @@
   box-shadow: 0 8px 36px rgba(245, 200, 66, 0.4);
 }
 
+.btn-secondary {
+  background: transparent;
+  color: var(--silver-dim);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0.4rem 0.8rem;
+}
+
+.btn-secondary:hover {
+  color: var(--white);
+}
+
 /* Input */
 .input {
   width: 100%;
@@ -220,9 +235,9 @@ html {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 780px;
   margin: 0 auto;
-  padding-top: 120px;
+  padding-top: 130px;
   /* to offset top bar */
 }
 
@@ -267,7 +282,7 @@ html {
   -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-card);
   padding: 2.2rem 2.4rem;
-  width: min(440px, 100%);
+  width: min(600px, 100%);
   border: 1px solid var(--border-subtle);
   box-shadow: 0 8px 60px rgba(0, 0, 0, 0.6), var(--shadow-gold);
   animation: fade-up 0.6s 0.1s ease both;
@@ -322,7 +337,7 @@ html {
   transition: all 0.25s ease;
   box-shadow: 0 4px 24px rgba(245, 200, 66, 0.25);
   animation: fade-up 0.6s 0.25s ease both;
-  width: min(440px, 100%);
+  width: min(600px, 100%);
 }
 
 .btn-deploy:hover:not(:disabled) {
@@ -409,7 +424,7 @@ html {
   border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 500;
-  width: min(440px, 100%);
+  width: min(600px, 100%);
   animation: fade-up 0.3s ease both;
 }
 
@@ -475,7 +490,7 @@ html {
   border: 1px solid var(--border-subtle);
   box-shadow: 0 0 80px rgba(245, 200, 66, 0.1), 0 0 0 1px rgba(245, 200, 66, 0.06);
   padding: 3rem 2.4rem 2.4rem;
-  width: min(480px, 100%);
+  width: min(580px, 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -616,7 +631,7 @@ html {
 .mint-card {
   padding: 1.6rem;
   margin-top: 1.5rem;
-  width: min(440px, 100%);
+  width: min(600px, 100%);
 }
 
 .mint-row {
@@ -795,21 +810,18 @@ html {
   gap: 2rem;
 }
 
-/* ======================================================
-   COLLECTION PAGE LAYOUT
-   ====================================================== */
+/* COLLECTION PAGE LAYOUT */
 
 .collection-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 3rem;
+  grid-template-columns: 320px 1fr;
+  gap: 2.5rem;
   width: 100%;
+  align-items: start;
 }
 
 
-/* ======================================================
-   COLLECTION INFO CARD
-   ====================================================== */
+/* COLLECTION INFO CARD */
 
 .collection-info {
   min-width: 0;
@@ -822,19 +834,15 @@ html {
   font-size: .9rem;
   letter-spacing: .12em;
   text-transform: uppercase;
-
   color: var(--gold-light);
-
   margin-bottom: 1.4rem;
-
 }
-
 
 /* Info rows */
 
 .collection-info p {
 
-  font-size: .85rem;
+  font-size: .95rem;
   border-bottom: 1px solid var(--border-subtle);
   padding-bottom: .6rem;
   margin-bottom: .7rem;
@@ -851,35 +859,23 @@ html {
 /* Labels */
 
 .collection-info span {
-
   display: block;
-
-  font-size: .65rem;
+  font-size: .72rem;
   letter-spacing: .12em;
   text-transform: uppercase;
-
   color: var(--silver-dim);
-
   margin-bottom: .15rem;
-
 }
-
 
 /* Contract address formatting */
 
 .collection-info p:first-child {
-
   word-break: break-all;
-
   font-family: monospace;
   color: var(--gold-light);
-
 }
 
-
-/* ======================================================
-   PREPARE COLLECTION CARD
-   ====================================================== */
+/* PREPARE COLLECTION CARD */
 
 .collection-upload {
   padding: 2rem 2.4rem;
@@ -896,10 +892,16 @@ html {
 }
 
 .creator-mint {
-  padding: 2rem 2.4rem;
+  padding: 2.4rem 3rem;
   width: 100%;
-  max-width: 600px;
-  box-shadow: 0 8px 60px rgba(0,0,0,0.6);
+  max-width: 100%;
+  box-shadow: 0 8px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: unset;
+  gap: 1rem;
+  padding:2.4rem 3rem;
 }
 
 .creator-mint h3 {
@@ -908,7 +910,7 @@ html {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold-light);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .creator-mint .form-group {
@@ -916,85 +918,61 @@ html {
 }
 
 .creator-mint button {
-  margin-top: 0.5rem;
+  margin-top: 0rem;
+  width: auto;
 }
-/* ======================================================
-   FORM GROUP
-   ====================================================== */
+
+/* FORM GROUP */
 
 .form-group {
   margin-bottom: 1.5rem;
 }
 
 .form-group label {
-
   display: block;
-
   font-size: .7rem;
   letter-spacing: .12em;
   text-transform: uppercase;
-
   color: var(--silver-dim);
-
   margin-bottom: .4rem;
-
 }
 
 
 /* Description box */
 
 .form-group textarea {
-
   width: 100%;
   min-height: 100px;
-
   background: rgba(0, 0, 0, .45);
   border: 1px solid rgba(255, 255, 255, .08);
-
   border-radius: var(--radius-input);
-
   padding: .8rem;
-
   color: var(--white);
   font-size: .9rem;
-
   resize: vertical;
-
 }
 
 .form-group textarea:focus {
-
   outline: none;
   border-color: var(--gold-mid);
 
 }
 
 .form-group input[type="file"] {
-
   width: 100%;
-
   padding: 1rem;
-
   border: 1px dashed var(--border-gold);
-
   border-radius: var(--radius-input);
-
   background: rgba(0, 0, 0, .35);
-
   color: var(--silver);
-
 }
 
 .upload-stats {
-
   display: flex;
   gap: 2rem;
-
   margin-top: .8rem;
-
   font-size: .8rem;
   color: var(--silver-dim);
-
 }
 
 .prepare-btn {
@@ -1007,9 +985,7 @@ html {
   max-width: 1100px;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PUBLIC MINT PAGE - PROFESSIONAL LAYOUT
-   ═══════════════════════════════════════════════════════════════ */
+/* PUBLIC MINT PAGE */
 
 .mint-page {
   max-width: 1400px;
@@ -1124,70 +1100,70 @@ html {
 }
 
 .utility-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 60px;
 }
 
 .utility-card {
-    width: 420px;
-    padding: 30px;
-    text-align: center;
-    border-radius: 20px;
+  width: 420px;
+  padding: 30px;
+  text-align: center;
+  border-radius: 20px;
 }
 
 .utility-title {
-    font-size: 32px;
-    margin-bottom: 10px;
+  font-size: 32px;
+  margin-bottom: 10px;
 }
 
 .utility-desc {
-    font-size: 14px;
-    color: #aaa;
-    margin-bottom: 20px;
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 20px;
 }
 
 .image-container {
-    width: 100%;
-    height: 260px;
-    overflow: hidden;
-    border-radius: 12px;
-    margin-bottom: 20px;
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
 .image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .meta-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #ccc;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #ccc;
 }
 
 .utility-btn {
-    width: 100%;
+  width: 100%;
 }
 
 .utility-header {
-    text-align: center;
-    margin-top: 60px;
-    margin-bottom: 30px;
+  text-align: center;
+  margin-top: 60px;
+  margin-bottom: 30px;
 }
 
 .utility-title {
-    font-size: 42px;
-    margin-bottom: 10px;
+  font-size: 42px;
+  margin-bottom: 10px;
 }
 
 .utility-desc {
-    font-size: 16px;
-    color: #aaa;
+  font-size: 16px;
+  color: #aaa;
 }
 
 @media (max-width: 768px) {
@@ -1200,8 +1176,14 @@ html {
     padding: 0.7rem 1rem;
   }
 
+  .status-banner,
+  .mint-card {
+    width: 100%;
+  }
+
   .glass-form {
     padding: 1.8rem 1.2rem;
+    width: 100%;
   }
 
   .wallet-pill {
@@ -1262,20 +1244,20 @@ html {
   }
 
   .hero p {
-  font-size: 0.95rem;
-}
+    font-size: 0.95rem;
+  }
 
   .hero button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 
-  white-space: nowrap; 
-  width: auto;
-  max-width: 260px;
-  padding: 0.8rem 1.6rem;
-}
+    white-space: nowrap;
+    width: auto;
+    max-width: 260px;
+    padding: 0.8rem 1.6rem;
+  }
 
   .nft-type-cards {
     flex-direction: column;
@@ -1283,30 +1265,32 @@ html {
   }
 
   .nft-type-card {
-  width: 100%;
-  max-width: 320px;
-}
+    width: 100%;
+    max-width: 320px;
+  }
 
   .btn-deploy {
     padding: 0.75rem 1.2rem;
     font-size: 0.8rem;
+    width: 100%;
   }
 
   .creator-mint {
-  padding: 1.4rem 1.2rem;
-}
+    padding: 1.4rem 1.2rem;
+  }
 
-.creator-mint button {
-  width: 100%;
-}
+  .creator-mint button {
+    width: 100%;
+  }
 
-.creator-mint h3 {
-  font-size: 1.1rem;
-}
-.brand-mark {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-}
+  .creator-mint h3 {
+    font-size: 1.1rem;
+  }
+
+  .brand-mark {
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+  }
 
 }
 
@@ -1320,4 +1304,21 @@ html {
   margin-top: 10px;
   font-size: 0.85rem;
   opacity: 0.7;
+}
+
+.preview-box {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  box-shadow:none;
+}
+
+.preview-img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: contain;
+  display: block;
+  border-radius: 12px;
 }

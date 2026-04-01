@@ -5,12 +5,22 @@ import ArtistNFT from "./abi/ArtistNFT.json";
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { connectWallet,getSigner } from './utils/wallet';
+import { connectWallet, getSigner } from './utils/wallet';
 
 function CreatePage({ walletAddress, setWalletAddress }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const metadataURI = searchParams.get("uri");
+  const rawURI = searchParams.get("uri");
+
+  let metadataURI = null;
+
+  if (rawURI) {
+    try {
+      metadataURI = decodeURIComponent(rawURI);
+    } catch {
+      metadataURI = rawURI; // already decoded
+    }
+  }
   const contractABI = ArtistNFT.abi;
   const contractByteCode = ArtistNFT.bytecode;
   const NFT_TYPE = {
