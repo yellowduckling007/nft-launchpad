@@ -21,6 +21,7 @@ function CreatePage({ walletAddress, setWalletAddress }) {
       metadataURI = rawURI; // already decoded
     }
   }
+
   const contractABI = ArtistNFT.abi;
   const contractByteCode = ArtistNFT.bytecode;
   const NFT_TYPE = {
@@ -140,7 +141,8 @@ function CreatePage({ walletAddress, setWalletAddress }) {
       !isFormValid ? 2 :
         !mintMode ? 3 :
           4;
-
+  
+  
   return (
     <div className="app-root">
 

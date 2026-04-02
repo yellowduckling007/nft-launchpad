@@ -595,15 +595,27 @@ html {
   gap: 1.5rem;
   justify-content: center;
   flex-wrap: wrap;
+  max-width: 800px;
+  max-height: 800px;
 }
 
 .nft-type-card {
-  width: 280px;
-  padding: 1.6rem;
+  width: 360px;
+  padding: 2rem 2.4rem;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: left;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.entry-content {
+  min-height: 80vh;
+  justify-content: center;
+  padding-top: 80px;
 }
 
 .nft-type-card.active {
@@ -615,14 +627,14 @@ html {
 .nft-type-card h3 {
   margin-bottom: 0.4rem;
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold-light);
 }
 
 .nft-type-card p {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--silver-dim);
   line-height: 1.4;
 }

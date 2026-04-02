@@ -18,6 +18,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
     const [totalMinted, setTotalMinted] = useState(0);
     const [maxSupply, setMaxSupply] = useState(0);
     const [images, setImages] = useState([]);
+    const [baseCID, setBaseCID] = useState("");
 
     const [isPreparing, setIsPreparing] = useState(false);
     const [collectionDescription, setCollectionDescription] = useState("");
@@ -486,10 +487,10 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                 )}
 
                 {contractMintMode === 1 && contractNftType === 0 && isCollectionPrepared && (
-                    <div className="collection-ready">
+                    <div className="card creator-mint">
                         <p>Collection prepared</p>
 
-                        <a href={`/public/${address}`}>
+                        <a href={`/public/${address}`} className="btn-deploy btn-primary">
                             Open Public Mint Page →
                         </a>
                     </div>
@@ -589,10 +590,10 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                 )}
 
                 {contractMintMode === 1 && contractNftType === 1 && isCollectionPrepared && (
-                    <div className="collection-ready">
+                    <div className="card creator-mint">
                         <p>Your NFT collection is ready!</p>
 
-                        <a href={`/utility/${address}?uri=${encodeURIComponent(metadataURI)}`}>
+                        <a href={`/utility/${address}?uri=${encodeURIComponent(metadataURI)}`} className="btn-deploy btn-primary">
                             Open Public Mint Page →
                         </a>
                     </div>
