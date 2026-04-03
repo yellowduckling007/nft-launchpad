@@ -545,7 +545,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                             setMetadataURI={setMetadataURI}
                             setMintModeUI={setMintModeUI}
                             mintCreatorNFT={mintCreatorNFT}
-                            generateMetadata={generateMetadataURI}
+                            generateMetadataURI={generateMetadataURI}
                             isMintingCreator={isMintingCreator}
                             collectionDescription={collectionDescription}
                             setCollectionDescription={setCollectionDescription}

@@ -1,3 +1,4 @@
+import MediaRenderer from "./MediaRenderer";
 function CreatorMint({
     mintModeUI,
     metadataURI,
@@ -19,11 +20,7 @@ function CreatorMint({
             {/* Preview (common) */}
             {previewData && (
                 <div className="preview-box">
-                    <img
-                        src={previewData.image}
-                        alt="NFT Preview"
-                        className="preview-img"
-                    />
+                    <MediaRenderer src={previewData.image} alt="NFT Preview" />
                 </div>
             )}
 

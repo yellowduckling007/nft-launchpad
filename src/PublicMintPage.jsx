@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { connectWallet , getSigner , getReadyProvider } from './utils/wallet';
 import { useRef } from "react";
+import MediaRenderer from "./MediaRenderer";
 
 async function safeFetch(url) {
     for (let i = 0; i < 3; i++) {
@@ -284,7 +285,7 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
                                     }
                                 }}
                             >
-                                <img src={nft.image} alt={nft.name} />
+                                <MediaRenderer src={nft.image} alt={nft.name} />
                                 <p>{nft.name}</p>
                                 {nft.minted && <span className="minted-label">Minted</span>}
                             </div>
