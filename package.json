@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "@walletconnect/ethereum-provider": "^2.23.8",
     "@web3modal/ethers": "^5.1.11",
     "ethers": "^6.16.0",

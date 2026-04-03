@@ -16,7 +16,7 @@ function EntryPage({ walletAddress, setWalletAddress }) {
     <div className="app-root">
 
       <div className="top-bar">
-        <div className="brand-mark">✦ MintNFT</div>
+        <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
         <div />
         <button className="wallet-pill" onClick={handleConnectWallet}>
           {walletAddress

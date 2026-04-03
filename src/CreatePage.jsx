@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { connectWallet, getSigner } from './utils/wallet';
+import {supabase} from "./utils/supabase";
 
 function CreatePage({ walletAddress, setWalletAddress }) {
   const navigate = useNavigate();
@@ -108,6 +109,19 @@ function CreatePage({ walletAddress, setWalletAddress }) {
 
 
       await contract.waitForDeployment();
+      // Save to Supabase
+      try {
+        await supabase.from('collections').insert({
+          wallet_address: walletAddress.toLowerCase(),
+          contract_address: contract.target.toLowerCase(),
+          collection_name: collection.name,
+          nft_type: nftType,
+          mint_mode: mintMode
+        });
+      } catch (err) {
+        console.error("Supabase save failed:", err);
+        // Don't block the user even if save fails
+      }
       setContractAddress(contract.target);
       setDeployStatus("success");
 
@@ -148,7 +162,7 @@ function CreatePage({ walletAddress, setWalletAddress }) {
 
       {/* Top Bar */}
       <div className="top-bar">
-        <div className="brand-mark">✦ MintNFT</div>
+        <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
         {deployStatus !== "success" && (
           <div className="progress-wrapper">
             <div className={`progress-step ${currentStep >= 1 ? "active" : ""}`}>

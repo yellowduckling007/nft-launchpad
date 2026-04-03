@@ -7,6 +7,8 @@ import PublicMintPage from './PublicMintPage';
 import PublicUtilityMintPage from './PublicUtilityMintPage';
 import ExistingContractPage from './ExistingContractPage';
 import EntryPage from './EntryPage';
+import DashboardPage from './DashboardPage';
+import CreatorProfilePage from './CreatorProfilePage';
 import { useState } from 'react';
 
 function App() {
@@ -18,7 +20,7 @@ function App() {
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
 
-          <Route path="/start" element={<EntryPage
+        <Route path="/start" element={<EntryPage
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
 
@@ -33,12 +35,20 @@ function App() {
         <Route path="/collection/:address" element={<CollectionPage
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
-          
+
         <Route path="/public/:address" element={<PublicMintPage
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
 
         <Route path="/utility/:address" element={<PublicUtilityMintPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+
+        <Route path="/dashboard" element={<DashboardPage
+          walletAddress={walletAddress}
+          setWalletAddress={setWalletAddress} />} />
+
+        <Route path="/creator/:address" element={<CreatorProfilePage
           walletAddress={walletAddress}
           setWalletAddress={setWalletAddress} />} />
       </Routes>

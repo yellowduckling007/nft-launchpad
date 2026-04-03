@@ -119,7 +119,7 @@ const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
         <div className="app-root">
 
             <div className="top-bar">
-                <div className="brand-mark">✦ MintNFT</div>
+                <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
                 <button className="wallet-pill" onClick={handleConnectWallet}>
                     {walletAddress
                         ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>

@@ -409,7 +409,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
         <div className="main-content">
 
             <div className="top-bar">
-                <div className="brand-mark">✦ MintNFT</div>
+                <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
                 <div></div>
                 <button className="wallet-pill" onClick={handleConnectWallet}>
                     {walletAddress

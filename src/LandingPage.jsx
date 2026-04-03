@@ -16,12 +16,21 @@ function LandingPage({ walletAddress, setWalletAddress }) {
 
             <div className="top-bar">
                 <div className="brand-mark">✦ MintNFT</div>
-                <div></div>
-                <button className="wallet-pill" onClick={handleConnectWallet}>
-                    {walletAddress
-                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-                        : "Connect Wallet"}
-                </button>
+                <div className="top-bar-right">
+                    {walletAddress && (
+                        <button
+                            className="btn-ghost top-bar-link"
+                            onClick={() => navigate("/dashboard")}
+                        >
+                            My Collections
+                        </button>
+                    )}
+                    <button className="wallet-pill" onClick={handleConnectWallet}>
+                        {walletAddress
+                            ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                            : "Connect Wallet"}
+                    </button>
+                </div>
             </div>
 
             <main className="landing">
@@ -36,6 +45,10 @@ function LandingPage({ walletAddress, setWalletAddress }) {
                     <button className="btn-primary" onClick={() => navigate("/create")}>
                         Launch Collection →
                     </button>
+                    <a href="/existing" className="btn-secondary">
+                        Already Have a Collection ?
+                    </a>
+
                 </section>
 
                 {/* FEATURES */}
