@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams,useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
@@ -8,6 +8,7 @@ import { uploadFileToIPFS, uploadMetadata, uploadMetadataFolder } from "./utils/
 import CreatorMint from "./CreatorMint";
 
 function CollectionPage({ walletAddress, setWalletAddress }) {
+    const navigate = useNavigate();
     const { address } = useParams();
     const [searchParams] = useSearchParams();
 
@@ -340,19 +341,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
             // Upload image
             if (utilityImage) {
-                const formData = new FormData();
-                formData.append("file", utilityImage);
-
-                const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
-                    },
-                    body: formData,
-                });
-
-                const data = await res.json();
-                imageURL = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${data.IpfsHash}`;
+                imageURL = await uploadFileToIPFS(utilityImage);
             }
 
             //Create metadata
@@ -368,7 +357,7 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
                 { type: "application/json" }
             );
 
-            const folderCID = await uploadMetadataFolder(metadataFile);
+            const folderCID = await uploadMetadataFolder([metadataFile]);
             const baseURI = `https://rose-mad-hawk-257.mypinata.cloud/ipfs/${folderCID}/`;
 
             // SET BASE URI
