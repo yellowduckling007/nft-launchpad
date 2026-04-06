@@ -21,7 +21,7 @@ function CollectionForm({collection, handlechange, handleSubmit, nftType}) {
         onChange={handlechange}
         placeholder="e.g. CAPE, PPNK"
         />
-        <small className="field-hint">A short ticker for your collection — like a stock symbol. Usually 3-5 letters.</small>
+        <small className="field-hint">A short 3-5 letter code for your collection (like a stock symbol)</small>
 
         <label>Max Supply</label>
         <input className="input"
