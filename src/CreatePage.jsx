@@ -3,15 +3,17 @@ import NFTtype from "./NFTtype";
 import Mintmode from "./Mintmode";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { ethers } from 'ethers';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { connectWallet, getSigner } from './utils/wallet';
-import {supabase} from "./utils/supabase";
+import { supabase } from "./utils/supabase";
 
 function CreatePage({ walletAddress, setWalletAddress }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rawURI = searchParams.get("uri");
+
+
 
   let metadataURI = null;
 
@@ -67,6 +69,14 @@ function CreatePage({ walletAddress, setWalletAddress }) {
       setWalletAddress(address);
     }
   };
+
+  useEffect(() => {
+    if (metadataURI) {
+      setNftType("ART");
+      setMintMode("CREATOR_ONLY");
+      setMintPrice("0");
+    }
+  }, [metadataURI]);
 
   const deployContract = async () => {
     const nftTypeEnum = nftType === "ART" ? NFT_TYPE.ART : NFT_TYPE.UTILITY;
@@ -155,8 +165,8 @@ function CreatePage({ walletAddress, setWalletAddress }) {
       !isFormValid ? 2 :
         !mintMode ? 3 :
           4;
-  
-  
+
+
   return (
     <div className="app-root">
 
@@ -198,10 +208,16 @@ function CreatePage({ walletAddress, setWalletAddress }) {
           <>
             <div className="page-header">
               <h1 className="headline text-gold">Create Collection</h1>
-              <p className="subline">Deploy your NFT contract in seconds</p>
+              <p className="subline">
+                {metadataURI
+                  ? "Deploy your contract to mint your NFT"
+                  : "Deploy your NFT contract in seconds"}
+              </p>
             </div>
 
-            <NFTtype nftType={nftType} setNftType={setNftType} />
+            {!metadataURI && (
+              <NFTtype nftType={nftType} setNftType={setNftType} />
+            )}
 
             {nftType && (
               <CollectionForm
@@ -212,7 +228,7 @@ function CreatePage({ walletAddress, setWalletAddress }) {
               />
             )}
 
-            {nftType && isFormValid && (
+            {nftType && isFormValid && !metadataURI && (
               <Mintmode
                 mintMode={mintMode}
                 setMintMode={setMintMode}
@@ -223,7 +239,6 @@ function CreatePage({ walletAddress, setWalletAddress }) {
                 nftType={nftType}
               />
             )}
-
 
             {/* Status Messages */}
             {deployStatus === "deploying" && (

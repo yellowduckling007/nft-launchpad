@@ -11,6 +11,9 @@ function Mintmode({ mintMode, setMintMode, mintPrice, setMintPrice, transferable
   return (
     <div className="mint-card card">
       <h4>Minting</h4>
+      <p className="field-hint" style={{ marginBottom: "0.5rem" }}>
+        Minting = creating an NFT on the blockchain. Choose who can mint from your collection.
+      </p>
 
       {nftType === "UTILITY" && (
         <p className="mint-desc text-gold" style={{ marginBottom: "30px" }}>
