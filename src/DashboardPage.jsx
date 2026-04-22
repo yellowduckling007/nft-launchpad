@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { connectWallet } from "./utils/wallet";
 import { supabase } from "./utils/supabase";
 
-function DashboardPage({ walletAddress, setWalletAddress }) {
+function DashboardPage({ walletAddress, setWalletAddress, theme, toggleTheme }) {
     const navigate = useNavigate();
     const [collections, setCollections] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -43,11 +43,16 @@ function DashboardPage({ walletAddress, setWalletAddress }) {
             <div className="top-bar">
                 <div className="brand-mark">✦ MintNFT</div>
                 <div />
-                <button className="wallet-pill" onClick={handleConnectWallet}>
-                    {walletAddress
-                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-                        : "Connect Wallet"}
-                </button>
+        <div className="top-bar-right">
+          <div className="theme-toggle" onClick={toggleTheme}>
+            <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
+          </div>
+          <button className="wallet-pill" onClick={handleConnectWallet}>
+            {walletAddress
+              ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+              : "Connect Wallet"}
+          </button>
+        </div>
             </div>
 
             <main className="main-content">

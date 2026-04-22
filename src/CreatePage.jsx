@@ -8,7 +8,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { connectWallet, getSigner } from './utils/wallet';
 import { supabase } from "./utils/supabase";
 
-function CreatePage({ walletAddress, setWalletAddress }) {
+function CreatePage({ walletAddress, setWalletAddress, theme, toggleTheme }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rawURI = searchParams.get("uri");
@@ -191,16 +191,16 @@ function CreatePage({ walletAddress, setWalletAddress }) {
         )}
         
 
-        <button
-          className="wallet-pill"
-          onClick={() => {
-            handleConnectWallet();
-          }}
-        >
-          {walletAddress
-            ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-            : "Connect Wallet"}
-        </button>
+        <div className="top-bar-right">
+          <div className="theme-toggle" onClick={toggleTheme}>
+            <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
+          </div>
+          <button className="wallet-pill" onClick={handleConnectWallet}>
+            {walletAddress
+              ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+              : "Connect Wallet"}
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}

@@ -7,7 +7,7 @@ import { getSigner, connectWallet, getReadyProvider } from "./utils/wallet";
 import { uploadFileToIPFS, uploadMetadata, uploadMetadataFolder } from "./utils/pinata";
 import CreatorMint from "./CreatorMint";
 
-function CollectionPage({ walletAddress, setWalletAddress }) {
+function CollectionPage({ walletAddress, setWalletAddress, toggleTheme, theme }) {
     const navigate = useNavigate();
     const { address } = useParams();
     const [searchParams] = useSearchParams();
@@ -399,12 +399,16 @@ function CollectionPage({ walletAddress, setWalletAddress }) {
 
             <div className="top-bar">
                 <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
-                <div></div>
-                <button className="wallet-pill" onClick={handleConnectWallet}>
-                    {walletAddress
-                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-                        : "Connect Wallet"}
-                </button>
+                <div className="top-bar-right">
+                    <div className="theme-toggle" onClick={toggleTheme}>
+                        <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
+                    </div>
+                    <button className="wallet-pill" onClick={handleConnectWallet}>
+                        {walletAddress
+                            ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                            : "Connect Wallet"}
+                    </button>
+                </div>
             </div>
 
 

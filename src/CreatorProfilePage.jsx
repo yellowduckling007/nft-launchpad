@@ -5,7 +5,7 @@ import { supabase } from "./utils/supabase";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { connectWallet, getReadyProvider } from "./utils/wallet";
 
-function CreatorProfilePage({ walletAddress, setWalletAddress }) {
+function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleTheme }) {
     const { address } = useParams();
     const navigate = useNavigate();
     const [collections, setCollections] = useState([]);
@@ -98,12 +98,16 @@ function CreatorProfilePage({ walletAddress, setWalletAddress }) {
 
             <div className="top-bar">
                 <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
-                <div />
-                <button className="wallet-pill" onClick={handleConnectWallet}>
-                    {walletAddress
-                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-                        : "Connect Wallet"}
-                </button>
+                <div className="top-bar-right">
+                    <div className="theme-toggle" onClick={toggleTheme}>
+                        <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
+                    </div>
+                    <button className="wallet-pill" onClick={handleConnectWallet}>
+                        {walletAddress
+                            ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                            : "Connect Wallet"}
+                    </button>
+                </div>
             </div>
 
             <main className="profile-page">

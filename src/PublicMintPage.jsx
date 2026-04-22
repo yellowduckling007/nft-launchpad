@@ -18,7 +18,7 @@ async function safeFetch(url) {
     throw new Error("Fetch failed");
 }
 
-function PublicMintPage({ walletAddress, setWalletAddress }) {
+function PublicMintPage({ walletAddress, setWalletAddress , theme , toggleTheme }) {
 
     const { address } = useParams();
 
@@ -213,11 +213,16 @@ function PublicMintPage({ walletAddress, setWalletAddress }) {
         <div className="app-root">
             <div className="top-bar">
                 <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
-                <button className="wallet-pill" onClick={handleConnectWallet}>
-                    {walletAddress
-                        ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
-                        : "Connect Wallet"}
-                </button>
+                <div className="top-bar-right">
+                    <div className="theme-toggle" onClick={toggleTheme}>
+                        <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
+                    </div>
+                    <button className="wallet-pill" onClick={handleConnectWallet}>
+                        {walletAddress
+                            ? <><span className="wallet-dot" />{walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}</>
+                            : "Connect Wallet"}
+                    </button>
+                </div>
             </div>
 
             <main className="mint-page">
