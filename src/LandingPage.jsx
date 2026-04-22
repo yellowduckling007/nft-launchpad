@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { connectWallet } from "./utils/wallet";
 
-function LandingPage({ walletAddress, setWalletAddress }) {
+function LandingPage({ walletAddress, setWalletAddress, toggleTheme, theme }) {
     const navigate = useNavigate();
 
     const handleConnectWallet = async () => {
@@ -17,6 +17,11 @@ function LandingPage({ walletAddress, setWalletAddress }) {
             <div className="top-bar">
                 <div className="brand-mark">✦ MintNFT</div>
                 <div className="top-bar-right">
+                    <div className="theme-toggle" onClick={toggleTheme}>
+                        <span className="theme-icon">
+                            {theme === "dark" ? "☀" : "☾"}
+                        </span>
+                    </div>
                     {walletAddress && (
                         <button
                             className="btn-ghost top-bar-link"

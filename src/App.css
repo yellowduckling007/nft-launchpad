@@ -24,7 +24,55 @@
   --font-body: 'DM Sans', sans-serif;
 }
 
+/* LIGHT THEME */
+.light-theme {
+  --black: #ffffff;
+  --white: #111111;
+
+  --surface-1: #fcf8ed;
+  --surface-2: #f3f4f6;
+  --surface-3: #fbf4cb;
+
+  --silver: #323840;
+  --silver-dim: #16191d;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-gold: rgba(245, 185, 7, 0.4);
+  --gold-mid: #f5c32c;
+  --gold-light: #efbe28;
+  --gold-deep: #9d7403;
+
+  --shadow-gold: 0 0 30px rgba(255, 192, 4, 0.2);
+}
+
 /* ===== REUSABLE SYSTEM ===== */
+/* CLEAN TOP-BAR TOGGLE */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--border-gold);
+  background: var(--surface-3);
+}
+
+.theme-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-mid);
+}
 
 /* Card base */
 .card {
@@ -74,7 +122,7 @@
 .input {
   width: 100%;
 
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--surface-3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-input);
 
@@ -88,7 +136,8 @@
 }
 
 .input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--silver-dim);
+  opacity: 0.6;
 }
 
 .input:focus {
@@ -278,7 +327,7 @@ html {
 
 /* ─── Glass Form Card ────────────────────────────────────────── */
 .glass-form {
-  background: rgba(22, 22, 24, 0.85);
+  background: var(--surface-2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-card);
@@ -544,7 +593,7 @@ html {
 
 /* Address block */
 .address-block {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--surface-3);
   border: 1px solid var(--border-gold);
   border-radius: 10px;
   padding: 1rem 1.2rem;
@@ -725,7 +774,7 @@ html {
 }
 
 .hero p {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--silver-dim);
   font-size: 1.05rem;
   max-width: 600px;
   margin-bottom: 2.2rem;
@@ -773,7 +822,7 @@ html {
 }
 
 .feature-card p {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--silver-dim);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -840,6 +889,9 @@ html {
 .collection-info {
   min-width: 0;
   padding: 1.6rem;
+  background: var(--surface-3);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-card);
 }
 
 .collection-info h3 {
@@ -957,7 +1009,7 @@ html {
 .form-group textarea {
   width: 100%;
   min-height: 100px;
-  background: rgba(0, 0, 0, .45);
+  background: var(--surface-3);
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: var(--radius-input);
   padding: .8rem;
@@ -977,7 +1029,7 @@ html {
   padding: 1rem;
   border: 1px dashed var(--border-gold);
   border-radius: var(--radius-input);
-  background: rgba(0, 0, 0, .35);
+  background: var(--surface-3);
   color: var(--silver);
 }
 
@@ -1089,6 +1141,9 @@ html {
   border-radius: 12px;
   padding: 1rem;
   position: relative;
+  background-color: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
 }
 
 .nft-card:hover {
@@ -1134,7 +1189,7 @@ html {
 
 .utility-desc {
   font-size: 14px;
-  color: #aaa;
+  color: var(--silver-dim);
   margin-bottom: 20px;
 }
 
@@ -1157,7 +1212,7 @@ html {
   justify-content: space-between;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #ccc;
+  color: var(--silver-dim);
 }
 
 .utility-btn {
@@ -1380,6 +1435,8 @@ video.media-renderer {
   padding: 1.6rem;
   cursor: pointer;
   transition: all 0.25s ease;
+  background-color: var(--surface-3);
+  border: 1px solid var(--border-subtle);
 }
 
 .dashboard-contract-row {
@@ -1416,6 +1473,7 @@ video.media-renderer {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.8rem;
+  color: var(--gold-deep);
 }
 
 .dashboard-card-header h3 {
@@ -1521,6 +1579,7 @@ video.media-renderer {
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--border-subtle);
+  
 }
 
 .profile-card:hover {
@@ -1561,7 +1620,7 @@ video.media-renderer {
   font-size: 1.2rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--white);
+  color: white;
   margin-bottom: 0.5rem;
 }
 
@@ -1569,7 +1628,7 @@ video.media-renderer {
   display: flex;
   gap: 1.5rem;
   font-size: 0.85rem;
-  color: var(--silver);
+  color: white;
   margin-bottom: 1rem;
 }
 

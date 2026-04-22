@@ -9,7 +9,7 @@ function Mintmode({ mintMode, setMintMode, mintPrice, setMintPrice, transferable
   }, [nftType]);
 
   return (
-    <div className="mint-card card">
+    <div className="mint-card card card-hover nft-type-card">
       <h4>Minting</h4>
       <p className="field-hint" style={{ marginBottom: "0.5rem" }}>
         Minting = creating an NFT on the blockchain. Choose who can mint from your collection.
@@ -53,7 +53,7 @@ function Mintmode({ mintMode, setMintMode, mintPrice, setMintPrice, transferable
       </label>
 
       {(mintMode === "PUBLIC" || nftType === "UTILITY") && (
-        <div className="mint-price text-gold">
+        <div className="mint-price">
           <label className="mint-price-label">Mint Price (ETH)</label>
           <input class="input"
             type="number"

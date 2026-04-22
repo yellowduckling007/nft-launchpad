@@ -10,7 +10,7 @@ const sepolia = {
   name: "Sepolia",
   currency: "ETH",
   explorerUrl: "https://sepolia.etherscan.io",
-  rpcUrl: "https://rpc.sepolia.org"
+  rpcUrl: "https://eth-sepolia.g.alchemy.com/v2/8s3BPBqLMR6tHUwzi4xHW"
 };
 
 const metadata = {
@@ -36,6 +36,36 @@ const modal = createWeb3Modal({
   enableAnalytics: false
 });
 
+// Shared helper — switches to Sepolia on whatever provider is available
+async function ensureSepolia() {
+  const sepoliaChainId = "0xaa36a7";
+
+  const provider = walletProvider || window.ethereum;
+  if (!provider) return;
+
+  try {
+    await provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: sepoliaChainId }]
+    });
+  } catch (err) {
+    if (err.code === 4902) {
+      await provider.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: sepoliaChainId,
+          chainName: "Sepolia Testnet",
+          nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+          rpcUrls: ["https://eth-sepolia.g.alchemy.com/v2/8s3BPBqLMR6tHUwzi4xHW"],
+          blockExplorerUrls: ["https://sepolia.etherscan.io"]
+        }]
+      });
+    } else {
+      throw err;
+    }
+  }
+}
+
 // Get provider
 async function getProvider() {
   if (walletProvider) {
@@ -49,13 +79,14 @@ async function getProvider() {
   throw new Error("No wallet connected");
 }
 
-// Get signer
+// Get signer — now ensures Sepolia before returning
 async function getSigner() {
+  await ensureSepolia(); // ← this is the fix
   const provider = await getProvider();
   return await provider.getSigner();
 }
 
-// Connect wallet 
+// Connect wallet
 async function connectWallet() {
   try {
     // Desktop: If MetaMask extension is installed, use it directly
@@ -67,23 +98,23 @@ async function connectWallet() {
 
     // Mobile: Open WalletConnect modal
     await modal.open();
-    
+
     // Wait for connection
     return new Promise((resolve, reject) => {
-      
+
       // Listen to modal state changes
       const unsubscribe = modal.subscribeState((state) => {
-        
+
         // Modal closed = user finished connecting (or cancelled)
         if (state.open === false) {
-          
+
           // Get the wallet provider from modal
           walletProvider = modal.getWalletProvider();
-          
+
           if (walletProvider) {
             // Convert to ethers provider
             const ethersProvider = new ethers.BrowserProvider(walletProvider);
-            
+
             // Get address
             ethersProvider.getSigner().then(async (signer) => {
               const address = await signer.getAddress();
@@ -100,7 +131,7 @@ async function connectWallet() {
           }
         }
       });
-      
+
       // Timeout after 60 seconds
       setTimeout(() => {
         unsubscribe();
@@ -114,7 +145,7 @@ async function connectWallet() {
   }
 }
 
-// ✅ New: Fully ready provider (MetaMask safe)
+// Fully ready provider (MetaMask safe) — used for read operations
 async function getReadyProvider() {
 
   // 1. Wait for MetaMask injection
@@ -147,33 +178,7 @@ async function getReadyProvider() {
   }
 
   // 3. Ensure correct network (Sepolia)
-  const sepoliaChainId = "0xaa36a7";
-
-  try {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: sepoliaChainId }]
-    });
-  } catch (err) {
-    if (err.code === 4902) {
-      await window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [{
-          chainId: sepoliaChainId,
-          chainName: "Sepolia Testnet",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-            decimals: 18
-          },
-          rpcUrls: ["https://rpc.sepolia.org"],
-          blockExplorerUrls: ["https://sepolia.etherscan.io"]
-        }]
-      });
-    } else {
-      throw err;
-    }
-  }
+  await ensureSepolia(); // ← reusing the shared helper now
 
   // 4. Small delay (important for mobile)
   await new Promise(res => setTimeout(res, 800));
@@ -182,4 +187,4 @@ async function getReadyProvider() {
   return new ethers.BrowserProvider(window.ethereum);
 }
 
-export { getProvider, getSigner, connectWallet , getReadyProvider };
+export { getProvider, getSigner, connectWallet, getReadyProvider };
