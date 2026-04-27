@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
 import { connectWallet, getSigner, getReadyProvider } from "./utils/wallet";
 
-function PublicUtilityMintPage({ walletAddress, setWalletAddress , theme , toggleTheme }) {
+function PublicUtilityMintPage({ walletAddress, setWalletAddress, theme, toggleTheme }) {
 
     const { address } = useParams();
     const [searchParams] = useSearchParams();
@@ -15,11 +15,12 @@ function PublicUtilityMintPage({ walletAddress, setWalletAddress , theme , toggl
     const [maxSupply, setMaxSupply] = useState(0);
     const [isMinting, setIsMinting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [creatorAddress, setCreatorAddress] = useState("");  // ← added
 
     const [metadata, setMetadata] = useState(null);
 
     const rawURI = searchParams.get("uri");
-const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
+    const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
 
     const handleConnectWallet = async () => {
         const addr = await connectWallet();
@@ -40,11 +41,13 @@ const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
                 const price = await contract.mintPrice();
                 const minted = await contract.totalMinted();
                 const max = await contract.maxSupply();
+                const owner = await contract.owner();  // ← added
 
                 setCollectionName(name);
                 setMintPrice(ethers.formatEther(price));
                 setTotalMinted(Number(minted));
                 setMaxSupply(Number(max));
+                setCreatorAddress(owner);  // ← added
 
                 //FETCH SINGLE METADATA
                 if (metadataURI) {
@@ -100,6 +103,29 @@ const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
             alert("Mint failed");
         } finally {
             setIsMinting(false);
+        }
+    };
+
+    // ← added
+    const handleShare = async () => {
+        const mintingPageUrl = `${window.location.origin}/utility/${address}?uri=${encodeURIComponent(metadataURI)}`;
+        const deepLink = `https://metamask.app.link/dapp/${mintingPageUrl.replace('https://', '')}`;
+
+        try {
+            const res = await fetch('MARKETING_API_ENDPOINT_HERE', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deepLink })
+            });
+
+            if (res.ok) {
+                alert('Sent to marketing team!');
+            } else {
+                alert('Failed to notify marketing team.');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
+            alert('Could not reach marketing system.');
         }
     };
 
@@ -160,6 +186,17 @@ const metadataURI = rawURI ? decodeURIComponent(rawURI) : null;
                         >
                             {isMinting ? "Minting..." : "Get Your NFT"}
                         </button>
+
+                        {/* Share button — only visible to creator */}
+                        {walletAddress?.toLowerCase() === creatorAddress?.toLowerCase() && (
+                            <button
+                                className="btn-outline"
+                                onClick={handleShare}
+                                style={{ marginTop: '0.75rem', width: '100%' }}
+                            >
+                                Share to Marketing Team ↗
+                            </button>
+                        )}
 
                     </div>
 

@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ArtistNFT from "./abi/ArtistNFT.json";
-import { connectWallet , getSigner , getReadyProvider } from './utils/wallet';
+import { connectWallet, getSigner, getReadyProvider } from './utils/wallet';
 import { useRef } from "react";
 import MediaRenderer from "./MediaRenderer";
 
@@ -18,7 +18,7 @@ async function safeFetch(url) {
     throw new Error("Fetch failed");
 }
 
-function PublicMintPage({ walletAddress, setWalletAddress , theme , toggleTheme }) {
+function PublicMintPage({ walletAddress, setWalletAddress, theme, toggleTheme }) {
 
     const { address } = useParams();
 
@@ -196,6 +196,27 @@ function PublicMintPage({ walletAddress, setWalletAddress , theme , toggleTheme 
             setIsMinting(false);
         }
     }
+    const handleShare = async () => {
+        const mintingPageUrl = `${window.location.origin}/public/${address}`;
+        const deepLink = `https://metamask.app.link/dapp/${mintingPageUrl.replace('https://', '')}`;
+        const previewImage = nfts.length > 0 ? nfts[0].image : "";
+        try {
+            const res = await fetch('https://hexahydrated-vonnie-heathiest.ngrok-free.dev/api/receive-mint-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' , 'x-api-key': 'unicart@' },
+                body: JSON.stringify({ link: deepLink , title: collectionName , image: previewImage })
+            });
+
+            if (res.ok) {
+                alert('Sent to marketing team!');
+            } else {
+                alert('Failed to notify marketing team.');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
+            alert('Could not reach marketing system.');
+        }
+    };
 
 
     if (isLoading) {
@@ -273,6 +294,17 @@ function PublicMintPage({ walletAddress, setWalletAddress , theme , toggleTheme 
                                 ? `Mint ${selectedNFT.name}`
                                 : "Select an NFT to mint"}
                     </button>
+
+                    {/* ADD THIS BELOW */}
+                    {walletAddress?.toLowerCase() === creatorAddress?.toLowerCase() && (
+                        <button
+                            className="btn-outline"
+                            onClick={handleShare}
+                            style={{ marginTop: '0.75rem' }}
+                        >
+                            Share to Marketing Team ↗
+                        </button>
+                    )}
                 </div>
 
                 {/* COLLECTION GRID */}
