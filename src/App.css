@@ -1557,7 +1557,9 @@ video.media-renderer {
   text-align: center;
   margin-bottom: 3rem;
 }
-
+.subline{
+  margin-top: 1rem;
+}
 .profile-stats {
   margin-top: 0.8rem;
   font-size: 0.85rem;

@@ -10,6 +10,8 @@ function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleThem
     const navigate = useNavigate();
     const [collections, setCollections] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
+    const [copyStatus, setCopyStatus] = useState("idle"); // idle | copying | copied
 
     const handleConnectWallet = async () => {
         const addr = await connectWallet();
@@ -19,6 +21,21 @@ function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleThem
     useEffect(() => {
         fetchPublicCollections();
     }, [address]);
+
+    const handleCopyLink = async () => {
+        const url = `${window.location.origin}/creator/${address}`;
+        console.log("COPY CLICKED", url);
+
+        try {
+            setCopyStatus("copying");
+            await navigator.clipboard.writeText(url);
+            setCopyStatus("copied");
+            setTimeout(() => setCopyStatus("idle"), 2000);
+        } catch (err) {
+            console.error("Copy failed:", err);
+            setCopyStatus("idle");
+        }
+    };
 
     const fetchPublicCollections = async () => {
         setIsLoading(true);
@@ -84,8 +101,9 @@ function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleThem
                     }
                 })
             );
+            const filtered = enriched.filter(col => col.previewImage !== null);
 
-            setCollections(enriched);
+            setCollections(filtered);
         } catch (err) {
             console.error("Failed to fetch collections:", err);
         } finally {
@@ -98,7 +116,9 @@ function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleThem
 
             <div className="top-bar">
                 <div className="brand-mark" onClick={() => navigate("/")}>✦ MintNFT</div>
+
                 <div className="top-bar-right">
+
                     <div className="theme-toggle" onClick={toggleTheme}>
                         <span className="theme-icon">{theme === "dark" ? "☀" : "☾"}</span>
                     </div>
@@ -115,11 +135,19 @@ function CreatorProfilePage({ walletAddress, setWalletAddress, theme, toggleThem
                 <div className="profile-header">
                     <h1 className="headline text-gold">Creator Portfolio</h1>
                     <p className="subline">
-                        {address.slice(0, 6)}...{address.slice(-4)}
+                        Creator: {address}
                     </p>
                     <div className="profile-stats">
-                        <span>{collections.length} Public Collections</span>
+                        <span className="text-gold" >{collections.length} Public Collections</span>
                     </div>
+                    <button className="btn-outline" onClick={handleCopyLink}>
+                        {copyStatus === "copying"
+                            ? "Copying..."
+                            : copyStatus === "copied"
+                                ? "Copied!"
+                                : "Copy Portfolio Link"}
+                    </button>
+
                 </div>
 
                 {isLoading ? (
