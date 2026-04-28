@@ -34,6 +34,7 @@ function PublicMintPage({ walletAddress, setWalletAddress, theme, toggleTheme })
     const [selectedNFT, setSelectedNFT] = useState(null);
     const [baseURI, setBaseURI] = useState("");
     const selectedNFTRef = useRef(null);
+    const [isShared, setIsShared] = useState(false);
 
     useEffect(() => {
         selectedNFTRef.current = selectedNFT;
@@ -209,6 +210,7 @@ function PublicMintPage({ walletAddress, setWalletAddress, theme, toggleTheme })
 
             if (res.ok) {
                 alert('Sent to marketing team!');
+                setIsShared(true);
             } else {
                 alert('Failed to notify marketing team.');
             }
@@ -301,8 +303,9 @@ function PublicMintPage({ walletAddress, setWalletAddress, theme, toggleTheme })
                             className="btn-outline"
                             onClick={handleShare}
                             style={{ marginTop: '0.75rem' }}
+                            disabled={isShared}
                         >
-                            Share to Marketing Team ↗
+                            {isShared ? "Already Shared ✓" : "Share to Marketing Team ↗"}
                         </button>
                     )}
                 </div>
